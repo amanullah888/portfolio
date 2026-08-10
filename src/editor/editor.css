@@ -1,0 +1,327 @@
+/* ==========================================================================
+   Visual Editor UI — fully self-contained. Everything is namespaced under
+   .tt-ed* and uses its own tokens so it can never be purged by Tailwind or
+   clash with the portfolio's comic styling. All chrome sits above the site
+   (z-index 2,147,xxx) but below nothing it needs to.
+   ========================================================================== */
+
+.tt-ed-overlay,
+.tt-ed-toolbar,
+.tt-ed-inspector,
+.tt-ed-toggle {
+  --ed-bg: #14161c;
+  --ed-bg-2: #1c1f27;
+  --ed-line: #2c313d;
+  --ed-text: #e7eaf0;
+  --ed-muted: #9aa3b2;
+  --ed-accent: #4c8dff;
+  --ed-accent-2: #ff3ea5;
+  --ed-good: #35c07a;
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- overlay layer (guides, selection, hover) --------------------------- */
+.tt-ed-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  pointer-events: none;
+}
+
+.tt-ed-hover {
+  position: fixed;
+  border: 1.5px dashed var(--ed-accent);
+  background: rgba(76, 141, 255, 0.06);
+  border-radius: 3px;
+  pointer-events: none;
+}
+.tt-ed-hover-label {
+  position: absolute;
+  top: -20px;
+  left: -1.5px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 3px 6px;
+  border-radius: 4px 4px 4px 0;
+  background: var(--ed-accent);
+  color: #fff;
+  white-space: nowrap;
+}
+
+.tt-ed-select {
+  position: fixed;
+  border: 1.5px solid var(--ed-accent);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+.tt-ed-handle {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  background: #fff;
+  border: 1.5px solid var(--ed-accent);
+  border-radius: 2px;
+  pointer-events: auto;
+  z-index: 2;
+}
+.tt-ed-handle-nw { top: -6px; left: -6px; cursor: nwse-resize; }
+.tt-ed-handle-n  { top: -6px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
+.tt-ed-handle-ne { top: -6px; right: -6px; cursor: nesw-resize; }
+.tt-ed-handle-w  { top: 50%; left: -6px; transform: translateY(-50%); cursor: ew-resize; }
+.tt-ed-handle-e  { top: 50%; right: -6px; transform: translateY(-50%); cursor: ew-resize; }
+.tt-ed-handle-sw { bottom: -6px; left: -6px; cursor: nesw-resize; }
+.tt-ed-handle-s  { bottom: -6px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
+.tt-ed-handle-se { bottom: -6px; right: -6px; cursor: nwse-resize; }
+
+.tt-ed-guide-v {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--ed-accent-2);
+  box-shadow: 0 0 4px var(--ed-accent-2);
+}
+.tt-ed-guide-h {
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--ed-accent-2);
+  box-shadow: 0 0 4px var(--ed-accent-2);
+}
+
+.tt-ed-badge {
+  position: fixed;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 7px;
+  border-radius: 5px;
+  background: #000;
+  color: #fff;
+  pointer-events: none;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- floating toggle ---------------------------------------------------- */
+.tt-ed-toggle {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2147483600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--ed-line);
+  background: var(--ed-bg);
+  color: var(--ed-text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+.tt-ed-toggle:hover { transform: translateY(-1px); }
+.tt-ed-toggle.is-on { background: var(--ed-accent); border-color: var(--ed-accent); color: #fff; }
+.tt-ed-toggle-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ed-muted);
+}
+.tt-ed-toggle.is-on .tt-ed-toggle-dot { background: #fff; box-shadow: 0 0 6px #fff; }
+
+/* ---- top toolbar -------------------------------------------------------- */
+.tt-ed-toolbar {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2147483600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  border-radius: 12px;
+  background: var(--ed-bg);
+  border: 1px solid var(--ed-line);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  color: var(--ed-text);
+  max-width: calc(100vw - 24px);
+  flex-wrap: wrap;
+}
+.tt-ed-tb-group { display: flex; align-items: center; gap: 4px; }
+.tt-ed-tb-sep { width: 1px; align-self: stretch; background: var(--ed-line); margin: 2px 2px; }
+
+.tt-ed-vp {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ed-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tt-ed-vp:hover { background: var(--ed-bg-2); color: var(--ed-text); }
+.tt-ed-vp.is-active { background: var(--ed-bg-2); color: var(--ed-text); border-color: var(--ed-line); }
+.tt-ed-vp-icon { font-size: 13px; }
+.tt-ed-live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ed-good); box-shadow: 0 0 6px var(--ed-good); }
+
+.tt-ed-btn {
+  padding: 6px 11px;
+  border-radius: 8px;
+  border: 1px solid var(--ed-line);
+  background: var(--ed-bg-2);
+  color: var(--ed-text);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.tt-ed-btn:hover:not(:disabled) { border-color: var(--ed-accent); }
+.tt-ed-btn:disabled { opacity: 0.4; cursor: default; }
+.tt-ed-btn-primary { background: var(--ed-good); border-color: var(--ed-good); color: #04120b; }
+.tt-ed-btn-primary.is-dirty { background: var(--ed-accent-2); border-color: var(--ed-accent-2); color: #fff; }
+.tt-ed-btn-ghost { background: transparent; }
+
+.tt-ed-flash {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #000;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+.tt-ed-hint {
+  flex-basis: 100%;
+  text-align: center;
+  font-size: 11px;
+  color: var(--ed-muted);
+  padding-top: 2px;
+}
+.tt-ed-hint b { color: var(--ed-text); text-transform: capitalize; }
+
+/* ---- inspector ---------------------------------------------------------- */
+.tt-ed-inspector {
+  position: fixed;
+  top: 68px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 2147483500;
+  width: 250px;
+  overflow-y: auto;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--ed-bg);
+  border: 1px solid var(--ed-line);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+  color: var(--ed-text);
+}
+.tt-ed-inspector::-webkit-scrollbar { width: 8px; }
+.tt-ed-inspector::-webkit-scrollbar-thumb { background: var(--ed-line); border-radius: 8px; }
+
+.tt-ed-empty { text-align: center; padding: 30px 6px; color: var(--ed-muted); }
+.tt-ed-empty-icon { font-size: 30px; margin-bottom: 8px; }
+.tt-ed-empty p { margin: 4px 0; font-size: 13px; color: var(--ed-text); }
+.tt-ed-empty .tt-ed-muted { color: var(--ed-muted); font-size: 12px; line-height: 1.4; }
+
+.tt-ed-insp-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 10px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--ed-line);
+}
+.tt-ed-insp-title { font-size: 14px; font-weight: 700; line-height: 1.2; }
+.tt-ed-insp-id { font-size: 10px; color: var(--ed-muted); word-break: break-all; }
+
+.tt-ed-group { margin-top: 12px; }
+.tt-ed-group-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ed-muted);
+  margin-bottom: 6px;
+}
+.tt-ed-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+.tt-ed-field { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.tt-ed-field-label {
+  font-size: 11px;
+  color: var(--ed-muted);
+  cursor: ew-resize;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+.tt-ed-field-label:hover { color: var(--ed-accent); }
+.tt-ed-unit { font-size: 9px; opacity: 0.6; }
+
+.tt-ed-field-input {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--ed-line);
+  border-radius: 7px;
+  background: var(--ed-bg-2);
+  overflow: hidden;
+}
+.tt-ed-field-input:focus-within { border-color: var(--ed-accent); }
+.tt-ed-field-input input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ed-text);
+  font-size: 12px;
+  padding: 5px 4px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  -moz-appearance: textfield;
+}
+.tt-ed-field-input input::-webkit-outer-spin-button,
+.tt-ed-field-input input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.tt-ed-field-input input::placeholder { color: var(--ed-muted); opacity: 0.6; }
+
+.tt-ed-spin {
+  border: 0;
+  background: transparent;
+  color: var(--ed-muted);
+  width: 20px;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  flex: none;
+}
+.tt-ed-spin:hover { color: var(--ed-text); background: rgba(255, 255, 255, 0.05); }
+
+.tt-ed-muted { color: var(--ed-muted); }
+
+/* While Design Mode is on, kill the site's text selection so drags stay clean,
+   and show a crosshair so it's obvious the page is now editable. */
+html[data-editor-on='true'] body { cursor: default; }
+/* Make every editable target grabbable — even ones the site marks
+   pointer-events:none (decorative characters) so they can still be selected. */
+html[data-editor-on='true'] [data-editable-id] { cursor: grab !important; pointer-events: auto !important; }
+
+@media (max-width: 640px) {
+  .tt-ed-inspector { width: min(250px, 78vw); }
+}

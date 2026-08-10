@@ -1,0 +1,244 @@
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Luckiest+Guy&family=Fredoka:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-tt-blue: #1a8cff;
+  --color-tt-blue-deep: #0a3d91;
+  --color-tt-yellow: #ffd21e;
+  --color-tt-green: #4fd84f;
+  --color-tt-purple: #7b2ff7;
+  --color-tt-purple-deep: #2a0a52;
+  --color-tt-pink: #ff3ea5;
+  --color-tt-ink: #0b0b12;
+
+  --font-display: 'Bangers', system-ui, sans-serif;
+  --font-impact: 'Luckiest Guy', system-ui, sans-serif;
+  --font-body: 'Fredoka', system-ui, sans-serif;
+}
+
+:root {
+  --ink: #0b0b12;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: var(--color-tt-ink);
+  color: #fff;
+  overflow-x: hidden;
+}
+
+::selection { background: var(--color-tt-yellow); color: #000; }
+
+/* ---------- Comic typography ---------- */
+.font-display { font-family: var(--font-display); letter-spacing: 0.02em; }
+.font-impact { font-family: var(--font-impact); }
+.font-body { font-family: var(--font-body); }
+
+.text-stroke {
+  -webkit-text-stroke: 3px #000;
+  paint-order: stroke fill;
+}
+.text-stroke-thin { -webkit-text-stroke: 2px #000; paint-order: stroke fill; }
+
+.comic-shadow { text-shadow: 5px 5px 0 rgba(0,0,0,0.9); }
+
+/* ---------- Comic panel / border ---------- */
+.ink-border {
+  border: 4px solid #000;
+  box-shadow: 8px 8px 0 rgba(0,0,0,0.85);
+}
+.ink-border-lg {
+  border: 6px solid #000;
+  box-shadow: 12px 12px 0 rgba(0,0,0,0.9);
+}
+
+/* ---------- Halftone + dot backgrounds ---------- */
+.halftone {
+  background-image: radial-gradient(rgba(0,0,0,0.28) 1.6px, transparent 1.7px);
+  background-size: 12px 12px;
+}
+.halftone-light {
+  background-image: radial-gradient(rgba(255,255,255,0.18) 1.4px, transparent 1.5px);
+  background-size: 14px 14px;
+}
+.grid-lines {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+/* ---------- Speed lines (radial burst) ---------- */
+.speed-lines {
+  background:
+    repeating-conic-gradient(from 0deg, rgba(255,255,255,0.0) 0deg 4deg, rgba(255,255,255,0.10) 4deg 5deg);
+}
+
+/* ---------- Animations ---------- */
+@keyframes floaty {
+  0%,100% { transform: translateY(0) rotate(var(--r, 0deg)); }
+  50% { transform: translateY(-14px) rotate(var(--r, 0deg)); }
+}
+.floaty { animation: floaty 4s ease-in-out infinite; }
+
+@keyframes wobble {
+  0%,100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+.wobble { animation: wobble 3s ease-in-out infinite; }
+
+@keyframes pop-blink {
+  0%, 92%, 100% { transform: scale(1); }
+  96% { transform: scale(1.12); }
+}
+.pop-blink { animation: pop-blink 3s ease-in-out infinite; }
+
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+.spin-slow { animation: spin-slow 18s linear infinite; }
+.spin-slower { animation: spin-slow 40s linear infinite; }
+
+@keyframes dash {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes flicker {
+  0%,100% { opacity: 1; }
+  50% { opacity: .55; }
+}
+.flicker { animation: flicker 1.6s ease-in-out infinite; }
+
+/* screen shake used via class toggle */
+@keyframes screenshake {
+  0%,100% { transform: translate(0,0) rotate(0); }
+  20% { transform: translate(-6px, 4px) rotate(-.6deg); }
+  40% { transform: translate(7px, -5px) rotate(.5deg); }
+  60% { transform: translate(-5px, 6px) rotate(-.4deg); }
+  80% { transform: translate(6px, -4px) rotate(.5deg); }
+}
+.shake { animation: screenshake .5s ease-in-out; }
+
+/* sparkle twinkle */
+@keyframes twinkle {
+  0%,100% { opacity: .2; transform: scale(.6); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+/* gradient move */
+@keyframes hue {
+  to { filter: hue-rotate(360deg); }
+}
+
+/* ---------- Buttons ---------- */
+.btn-comic {
+  font-family: var(--font-display);
+  letter-spacing: .04em;
+  border: 4px solid #000;
+  box-shadow: 5px 5px 0 rgba(0,0,0,0.9);
+  transition: transform .08s ease, box-shadow .08s ease, filter .2s ease;
+  cursor: pointer;
+}
+.btn-comic:hover { transform: translate(-2px,-2px); box-shadow: 8px 8px 0 rgba(0,0,0,0.9); filter: brightness(1.05); }
+.btn-comic:active { transform: translate(3px,3px); box-shadow: 2px 2px 0 rgba(0,0,0,0.9); }
+
+/* utility for section snap-free scroll reveal container */
+.will-anim { will-change: transform, opacity; }
+
+/* ---------- Cinematic helpers ---------- */
+/* Full-viewport section */
+.screen { min-height: 100svh; }
+.screen-lg { min-height: 100svh; }
+@media (min-width: 768px) { .screen-lg { min-height: 108svh; } }
+
+/* Cinematic dark vignette to focus the eye toward centre characters */
+.vignette::after {
+  content: '';
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background: radial-gradient(120% 90% at 50% 45%, transparent 45%, rgba(0,0,0,0.55) 100%);
+  z-index: 1;
+}
+
+/* Big soft glow behind a character so it reads as lit / cinematic.
+   drop-shadow on a large PNG is re-rasterized on every composite, so the blur
+   radius is kept modest — a 40px blur on a 800x1067 image is one of the most
+   expensive things that can sit in a scrolling viewport. */
+.char-glow {
+  filter: drop-shadow(0 18px 22px rgba(0,0,0,0.55));
+  will-change: transform;
+}
+.char-halo {
+  position: absolute; inset: 0; z-index: -1;
+  background: radial-gradient(closest-side, var(--halo, rgba(255,210,30,0.5)), transparent 72%);
+  filter: blur(8px);
+}
+
+/* Oversized outlined display text for hero-scale headlines */
+.mega {
+  font-family: var(--font-display);
+  line-height: 0.86;
+  -webkit-text-stroke: 4px #000;
+  paint-order: stroke fill;
+  text-shadow: 8px 8px 0 rgba(0,0,0,0.9);
+}
+
+/* Floating drift for large characters (bigger amplitude than .floaty) */
+@keyframes drift {
+  0%,100% { transform: translateY(0) rotate(var(--r, 0deg)); }
+  50% { transform: translateY(-26px) rotate(var(--r, 0deg)); }
+}
+.drift { animation: drift 6s ease-in-out infinite; }
+
+/* Slow cinematic pan for background layers */
+@keyframes pan-x {
+  0%,100% { transform: translateX(0); }
+  50% { transform: translateX(-3%); }
+}
+.pan-slow { animation: pan-x 24s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .drift, .pan-slow { animation: none !important; }
+}
+
+/* Scroll containers that manage their own affordances (carousels) */
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ---------- Marquee (infinite news-ticker strip) ---------- */
+/* The track holds TWO copies of the content laid end to end and slides left by
+   exactly one copy (-50%), so the loop is seamless. Hovering pauses it. */
+.marquee { overflow: hidden; }
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 26s linear infinite;
+}
+.marquee:hover .marquee-track { animation-play-state: paused; }
+.marquee-mask {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
+}
+
+/* Promote continuously-animated layers so they don't repaint their parents */
+.drift, .floaty, .spin-slow, .spin-slower, .pan-slow { will-change: transform; }
+
+/* thin scrollbar */
+::-webkit-scrollbar { width: 12px; }
+::-webkit-scrollbar-track { background: #0b0b12; }
+::-webkit-scrollbar-thumb { background: var(--color-tt-purple); border: 3px solid #0b0b12; border-radius: 20px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .floaty, .wobble, .pop-blink, .spin-slow, .spin-slower, .flicker, .shake { animation: none !important; }
+}

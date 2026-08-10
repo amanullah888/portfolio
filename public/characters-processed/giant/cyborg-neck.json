@@ -1,0 +1,11 @@
+{
+  "canvas": [
+    800,
+    1067
+  ],
+  "tubeCenterXPct": 0.49754,
+  "tubeWidthPct": 0.13527,
+  "tubeBottomYPct": 0.49817,
+  "tubeTopRestYPct": 0.52522,
+  "maxLiftPct": 0.72042
+}

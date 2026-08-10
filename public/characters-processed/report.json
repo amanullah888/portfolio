@@ -1,0 +1,125 @@
+{
+  "entries": [
+    {
+      "group": "giant",
+      "source": "beastboy.png",
+      "variant": "1x",
+      "trimmed_px": [
+        334,
+        324
+      ],
+      "canvas_px": [
+        800,
+        1067
+      ],
+      "scale": 2.204,
+      "capped_at_max_upscale": false,
+      "output_webp": "public\\characters-processed\\giant\\beastboy.webp",
+      "actual_fill_h": 0.669,
+      "actual_fill_w": 0.92,
+      "output": "public\\characters-processed\\giant\\beastboy.png",
+      "edge_touch": false
+    },
+    {
+      "group": "giant",
+      "source": "beastboy.png",
+      "variant": "@2x",
+      "trimmed_px": [
+        334,
+        324
+      ],
+      "canvas_px": [
+        1600,
+        2134
+      ],
+      "scale": 4.407,
+      "capped_at_max_upscale": false,
+      "output_webp": "public\\characters-processed\\giant\\beastboy@2x.webp",
+      "actual_fill_h": 0.669,
+      "actual_fill_w": 0.92,
+      "output": "public\\characters-processed\\giant\\beastboy@2x.png",
+      "edge_touch": false
+    },
+    {
+      "group": "footer",
+      "source": "beastboy.png",
+      "variant": "1x",
+      "trimmed_px": [
+        334,
+        324
+      ],
+      "canvas_px": [
+        480,
+        640
+      ],
+      "scale": 1.293,
+      "capped_at_max_upscale": false,
+      "output_webp": "public\\characters-processed\\footer\\beastboy.webp",
+      "actual_fill_h": 0.655,
+      "actual_fill_w": 0.9,
+      "output": "public\\characters-processed\\footer\\beastboy.png",
+      "edge_touch": false
+    },
+    {
+      "group": "footer",
+      "source": "beastboy.png",
+      "variant": "@2x",
+      "trimmed_px": [
+        334,
+        324
+      ],
+      "canvas_px": [
+        960,
+        1280
+      ],
+      "scale": 2.587,
+      "capped_at_max_upscale": false,
+      "output_webp": "public\\characters-processed\\footer\\beastboy@2x.webp",
+      "actual_fill_h": 0.655,
+      "actual_fill_w": 0.9,
+      "output": "public\\characters-processed\\footer\\beastboy@2x.png",
+      "edge_touch": false
+    },
+    {
+      "group": "badge",
+      "source": "beastboy.png",
+      "variant": "1x",
+      "trimmed_px": [
+        334,
+        324
+      ],
+      "canvas_px": [
+        315,
+        420
+      ],
+      "scale": 0.896,
+      "capped_at_max_upscale": false,
+      "output_webp": "public\\characters-processed\\badge\\beastboy.webp",
+      "actual_fill_h": 0.69,
+      "actual_fill_w": 0.949,
+      "output": "public\\characters-processed\\badge\\beastboy.png",
+      "edge_touch": false
+    },
+    {
+      "group": "badge",
+      "source": "beastboy.png",
+      "variant": "@2x",
+      "trimmed_px": [
+        334,
+        324
+      ],
+      "canvas_px": [
+        630,
+        840
+      ],
+      "scale": 1.792,
+      "capped_at_max_upscale": false,
+      "output_webp": "public\\characters-processed\\badge\\beastboy@2x.webp",
+      "actual_fill_h": 0.692,
+      "actual_fill_w": 0.949,
+      "output": "public\\characters-processed\\badge\\beastboy@2x.png",
+      "edge_touch": false
+    }
+  ],
+  "flags": []
+}
