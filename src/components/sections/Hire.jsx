@@ -21,8 +21,14 @@ export default function Hire() {
       id="hire"
       ref={ref}
       data-magic
-      className="relative py-16 md:py-24 overflow-hidden"
-      style={{ background: 'radial-gradient(90% 90% at 50% 40%, #3a0a6b 0%, #180230 55%, #05010f 100%)' }}
+      className="panel"
+      style={{ background: [
+        // soft magic glow around the centre where Raven / the circle sit
+        'radial-gradient(85% 80% at 50% 42%, rgba(96,26,150,0.6) 0%, rgba(24,2,48,0) 62%)',
+        // vertical base: top edge is a flat #3a0a6b so it merges seamlessly with
+        // the ZAP divider above it; bottom fades to near-black for the footer
+        'linear-gradient(180deg, #3a0a6b 0%, #1a0533 34%, #0a0320 68%, #05010f 100%)',
+      ].join(', ') }}
     >
       <Particles count={30} variant="magic" />
       <div className="absolute inset-0 halftone opacity-10" />
@@ -37,7 +43,8 @@ export default function Hire() {
         <MagicCircle />
       </motion.div>
 
-      <div className="relative z-10 mx-auto w-[min(1000px,92vw)] text-center">
+      <div className="panel-scroll">
+      <div className="panel-inner relative z-10 mx-auto w-[min(1000px,92vw)] text-center py-6 md:py-8">
         <PanelTag color="#7b2ff7">RAVEN'S CHAMBER — LET'S CONNECT</PanelTag>
 
         <motion.div
@@ -46,7 +53,7 @@ export default function Hire() {
           transition={{ type: 'spring', stiffness: 80, damping: 12, delay: 0.2 }}
           className="mt-6 flex justify-center"
         >
-          <div className="h-[34vh] md:h-[40vh] drift char-glow" data-zoom="0.12"
+          <div className="h-[24vh] md:h-[27vh] drift char-glow" data-zoom="0.12"
             data-editable-id="hire__raven" data-editable-label="Raven (character)">
             <Character id="raven" variant="giant" className="h-full w-auto" style={{ width: 'auto', height: '100%' }} />
           </div>
@@ -56,7 +63,7 @@ export default function Hire() {
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.4 }}
-          className="mt-6 font-display text-2xl md:text-3xl text-tt-purple/90"
+          className="mt-4 font-display text-2xl md:text-3xl text-tt-purple/90"
           style={{ color: '#c89bff' }}
         >
           "Your decision has already been made…"
@@ -87,7 +94,7 @@ export default function Hire() {
           initial={{ opacity: 0, y: 24 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 1.5, type: 'spring', stiffness: 110 }}
-          className="mt-9 flex flex-wrap justify-center gap-4"
+          className="mt-6 flex flex-wrap justify-center gap-4"
         >
           <a href={`mailto:${PROFILE.email}`} className="magnetic btn-comic rounded-2xl px-7 py-4 text-2xl bg-tt-pink text-white">
             HIRE ME
@@ -105,7 +112,7 @@ export default function Hire() {
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : {}}
           transition={{ delay: 1.8 }}
-          className="mt-10 grid sm:grid-cols-2 md:grid-cols-4 gap-3 max-w-3xl mx-auto"
+          className="mt-6 grid sm:grid-cols-2 md:grid-cols-4 gap-3 max-w-3xl mx-auto"
         >
           {contacts.map((c) => (
             <a key={c.label} href={c.href} target={c.href.startsWith('http') ? '_blank' : undefined} rel="noreferrer"
@@ -117,6 +124,7 @@ export default function Hire() {
             </a>
           ))}
         </motion.div>
+      </div>
       </div>
     </section>
   )

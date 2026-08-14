@@ -65,7 +65,7 @@ export function SpeechBubble({
 }
 
 /* Big comic impact word (POW! BOOM! WHOOSH!) */
-export function ComicBurst({ word = 'POW!', color = '#ffd21e', className = '', style }) {
+export function ComicBurst({ word = 'POW!', color = '#ffd21e', className = '', style, size = 'clamp(2rem,7vw,5rem)' }) {
   return (
     <motion.div
       className={`font-impact select-none ${className}`}
@@ -77,7 +77,7 @@ export function ComicBurst({ word = 'POW!', color = '#ffd21e', className = '', s
     >
       <span
         className="inline-block text-stroke comic-shadow"
-        style={{ color, fontSize: 'clamp(2rem,7vw,5rem)', lineHeight: 1 }}
+        style={{ color, fontSize: size, lineHeight: 1 }}
       >
         {word}
       </span>

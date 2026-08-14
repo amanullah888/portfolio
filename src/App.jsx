@@ -82,6 +82,37 @@ export default function App() {
     return () => ctx.revert()
   }, [lenis, loaded])
 
+  // Full-screen panels keep their overflowing content in an inner `.panel-scroll`
+  // region. Lenis drives page smooth-scroll by hijacking the wheel, so it must
+  // step aside for that inner scroll — but ONLY while the panel actually
+  // overflows, otherwise the wheel would get trapped over a panel that has
+  // nothing to scroll. We flag overflowing regions with `data-lenis-prevent`
+  // (Lenis's own opt-out) and keep it in sync as the viewport / content changes.
+  // Native overscroll at the region's top/bottom edge still chains to the page,
+  // so scrolling never dead-ends. Touch is native already (syncTouch: false).
+  useEffect(() => {
+    const regions = Array.from(document.querySelectorAll('.panel-scroll'))
+    if (!regions.length) return
+    const sync = () => {
+      regions.forEach((el) => {
+        const overflowing = el.scrollHeight > el.clientHeight + 1
+        el.toggleAttribute('data-lenis-prevent', overflowing)
+      })
+    }
+    sync()
+    const ro = new ResizeObserver(sync)
+    regions.forEach((el) => {
+      ro.observe(el)
+      if (el.firstElementChild) ro.observe(el.firstElementChild)
+    })
+    window.addEventListener('resize', sync)
+    document.fonts?.ready.then(sync)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', sync)
+    }
+  }, [lenis, loaded])
+
   return (
     <>
       {!loaded && <Preloader onDone={() => setLoaded(true)} />}
@@ -97,9 +128,9 @@ export default function App() {
         <Experience />
         <Divider word="BAM!" color="#7b2ff7" from="#041018" to="#160a2e" />
         <Projects />
-        <Divider word="SPARKLE!" color="#ffd21e" from="#1a0740" to="#ff5fb0" />
+        <Divider word="SPARKLE!" color="#ffd21e" from="#1a0740" to="#c73da0" />
         <Personality />
-        <Divider word="ZAP!" color="#c89bff" from="#4d0a3f" to="#3a0a6b" />
+        <Divider word="ZAP!" color="#c89bff" from="#3d1150" to="#3a0a6b" />
         <Hire />
         <FooterOutro lenis={lenis} />
       </main>

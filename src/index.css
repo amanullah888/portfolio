@@ -80,6 +80,34 @@ body {
     repeating-conic-gradient(from 0deg, rgba(255,255,255,0.0) 0deg 4deg, rgba(255,255,255,0.10) 4deg 5deg);
 }
 
+/* Black comic "concentration lines" radiating from a point (manga/comic feel).
+   Uses --burst-x/--burst-y to move the vanishing point. The mask keeps the
+   very centre clear so lines read as radiating outward toward the edges. */
+.comic-burst {
+  --burst-x: 50%;
+  --burst-y: 8%;
+  background-image:
+    repeating-conic-gradient(from 0deg at var(--burst-x) var(--burst-y),
+      rgba(0,0,0,0) 0deg 2.1deg,
+      rgba(0,0,0,0.9) 2.1deg 3.2deg);
+  -webkit-mask-image: radial-gradient(120% 120% at var(--burst-x) var(--burst-y), transparent 8%, #000 42%);
+          mask-image: radial-gradient(120% 120% at var(--burst-x) var(--burst-y), transparent 8%, #000 42%);
+}
+
+/* ---------- Notched comic / HUD frame ---------- */
+/* An octagonal clip (all four corners cut) for that comic-panel / heads-up
+   display look. Put it on an outer accent layer and an inset inner layer to
+   get a coloured border that follows the cut corners. */
+.notch-frame {
+  --notch: 22px;
+  clip-path: polygon(
+    var(--notch) 0, calc(100% - var(--notch)) 0,
+    100% var(--notch), 100% calc(100% - var(--notch)),
+    calc(100% - var(--notch)) 100%, var(--notch) 100%,
+    0 calc(100% - var(--notch)), 0 var(--notch)
+  );
+}
+
 /* ---------- Animations ---------- */
 @keyframes floaty {
   0%,100% { transform: translateY(0) rotate(var(--r, 0deg)); }
@@ -129,6 +157,14 @@ body {
   50% { opacity: 1; transform: scale(1); }
 }
 
+/* tower window bloom — softly pulses the lit windows so they read as glowing lights */
+@keyframes tower-glow {
+  0%,100% { opacity: .4; }
+  45%     { opacity: .7; }
+  70%     { opacity: .5; }
+}
+.tower-glow { animation: tower-glow 4.5s ease-in-out infinite; }
+
 /* gradient move */
 @keyframes hue {
   to { filter: hue-rotate(360deg); }
@@ -150,10 +186,67 @@ body {
 .will-anim { will-change: transform, opacity; }
 
 /* ---------- Cinematic helpers ---------- */
-/* Full-viewport section */
-.screen { min-height: 100svh; }
+/* ---------- Full-screen panels ----------
+   A "panel" is exactly ONE viewport tall and can never grow taller than the
+   viewport. Its decorative layers fill it; the real CONTENT lives inside
+   `.panel-scroll`, which scrolls internally only when the content can't fit —
+   so the outer page never gets taller just because one panel has a lot to say.
+
+   Why svh (small-viewport-height) instead of vh/dvh:
+     • 100vh  on iOS/iPadOS Safari is the LARGE viewport (toolbar hidden), so a
+       panel sized to it gets clipped while the toolbar is visible.
+     • 100dvh tracks the live viewport, but it RESIZES as Safari's toolbar shows
+       or hides mid-scroll — that is exactly the "page jumps when the browser UI
+       changes" we must avoid.
+     • 100svh is the SMALLEST (toolbar-visible) height: it is stable, never
+       reflows, and guarantees the whole panel is visible even with the chrome
+       showing. On desktop svh == vh == dvh, so nothing is lost there. */
+.panel {
+  position: relative;
+  height: 100vh;        /* legacy fallback for browsers without svh */
+  height: 100svh;
+  min-height: 100svh;
+  max-height: 100svh;   /* hard cap: a panel is never taller than the viewport */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;     /* the panel frame itself never scrolls */
+}
+
+/* The one scrollable region inside a panel. It fills the leftover space and
+   only shows a scrollbar when its content overflows. `min-height:0` is what
+   lets a flex child shrink below its content height so it can actually scroll.
+   Safe-area padding keeps content clear of the notch / home indicator. */
+.panel-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  -webkit-overflow-scrolling: touch;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.28) transparent;
+}
+.panel-scroll::-webkit-scrollbar { width: 10px; }
+.panel-scroll::-webkit-scrollbar-track { background: transparent; }
+.panel-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+/* The content wrapper inside `.panel-scroll`. `margin:auto` centres it in the
+   viewport when it fits, and collapses to 0 (top reachable, fully scrollable)
+   when it doesn't — the cross-browser-safe alternative to justify-content. */
+.panel-inner { margin: auto; width: 100%; }
+
+/* Legacy aliases kept so any stray reference still resolves to a full screen. */
+.screen,
 .screen-lg { min-height: 100svh; }
-@media (min-width: 768px) { .screen-lg { min-height: 108svh; } }
 
 /* Cinematic dark vignette to focus the eye toward centre characters */
 .vignette::after {
@@ -161,6 +254,12 @@ body {
   position: absolute; inset: 0;
   pointer-events: none;
   background: radial-gradient(120% 90% at 50% 45%, transparent 45%, rgba(0,0,0,0.55) 100%);
+  /* Keep the very top edge free of vignette darkening — otherwise it collides
+     with the seamless divider above and shows a hard line (the divider carries
+     no vignette). Fading the overlay in over the top ~9% removes that seam
+     while preserving the cinematic side/bottom darkening around characters. */
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 9%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 9%);
   z-index: 1;
 }
 

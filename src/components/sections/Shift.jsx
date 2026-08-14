@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { SpeechBubble, PanelTag, ComicBurst } from '../ui'
+import { SpeechBubble, PanelTag } from '../ui'
 import { SKILL_CREW, FORMS } from '../../data/content'
 
 // How many skill tiles fit in the fixed-size block before the rest become
@@ -40,22 +40,26 @@ export default function Shift() {
   return (
     <section
       id="shift"
-      className="relative pt-3 pb-14 md:pt-4 md:pb-20 overflow-hidden"
+      className="panel"
       style={{ background: 'linear-gradient(180deg,#0b1230,#08351a 55%,#0b3d1f)' }}
     >
-      <div className="absolute inset-0 halftone opacity-20" />
+      {/* comic "concentration lines" radiating from behind Beast Boy, plus a
+          faint halftone wash for texture */}
+      <div className="absolute inset-0 comic-burst" style={{ '--burst-x': '78%', '--burst-y': '6%' }} />
+      <div className="absolute inset-0 halftone opacity-[0.08]" />
 
-      <div className="relative z-10 mx-auto w-[min(1320px,92vw)]">
+      <div className="panel-scroll">
+      <div className="panel-inner mx-auto w-[min(1200px,94vw)] px-1 py-4 md:py-5">
 
         {/* ---------------- Header band ---------------- */}
-        <div className="mb-8 md:mb-10 flex items-end justify-between gap-6">
+        <div className="mb-4 md:mb-5 flex items-end justify-between gap-6">
           <div>
-            <PanelTag color="#4fd84f">BEAST BOY'S FAVORITE PART</PanelTag>
-            <h2 className="mt-3 mega text-white" style={{ fontSize: 'clamp(2.6rem,7vw,5.5rem)' }}>
+            <PanelTag color="#4fd84f">BEAST BOY'S TALENT: NEXT LEVEL</PanelTag>
+            <h2 className="mt-2 mega text-white leading-[0.9]" style={{ fontSize: 'clamp(2.4rem,6vw,4.6rem)' }}>
               MY SKILLS
             </h2>
-            <p className="mt-2 text-tt-green font-display" style={{ fontSize: 'clamp(1.1rem,1.8vw,1.6rem)' }}>
-              These are my superpowers <span className="text-white/70">(kind of).</span>
+            <p className="mt-1 text-tt-green font-display" style={{ fontSize: 'clamp(1rem,1.6vw,1.35rem)' }}>
+              These are my superpowers <span className="text-white/60">(kind of).</span>
             </p>
           </div>
 
@@ -78,90 +82,81 @@ export default function Shift() {
               src={CREW_IMG('beastboy')}
               alt=""
               draggable={false}
-              className="w-24 xl:w-28 h-auto select-none drift char-glow"
+              className="w-20 xl:w-24 h-auto select-none drift char-glow"
               style={{ '--r': '2deg' }}
             />
           </div>
         </div>
 
-        {/* ---------------- Crew | Skills ---------------- */}
-        {/* items-stretch so the two columns share one height — the left rail
-            fills the same vertical span as the skills area, making the whole
-            thing read as one balanced rectangle instead of a tall right column
-            with dead space beside the crew cards. */}
-        <div className="grid lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)] gap-8 lg:gap-10 items-stretch">
+        {/* ---------------- One HUD frame: Crew | Skills ---------------- */}
+        {/* A single notched comic panel wraps the whole explorer so it reads as
+            one compact rectangle — no stretched columns or dead vertical space. */}
+        <div className="notch-frame p-[3px]" style={{ background: 'rgba(79,216,79,0.55)' }}>
+          <div className="notch-frame p-4 md:p-5" style={{ background: '#0a1f14' }}>
+            <div className="grid lg:grid-cols-[minmax(0,300px)_minmax(0,1fr)] gap-5 lg:gap-6 items-start">
 
-          {/* ===== Crew selector ===== */}
-          {/* min-w-0: on mobile the grid collapses to one track that would
-              otherwise size to the crew row's content width (~714px) and get
-              clipped by the section's overflow-hidden — hiding Gorilla & Roaaar.
-              min-w-0 lets the track shrink to the viewport so the row scrolls.
-              flex-col so the crew stack can flex-1 and fill the shared height. */}
-          <div className="min-w-0 flex flex-col">
-            <div className="mb-4 shrink-0">
-              <div className="font-display text-white text-xl md:text-2xl">MEET THE CREW <span className="align-middle">🐾</span></div>
-              <p className="text-white/60 font-body text-sm mt-0.5">Pick a character to explore my skills.</p>
-            </div>
-
-            {/* Horizontal scroll on mobile; on desktop it stacks AND grows
-                (lg:flex-1) so the three cards divide the column height evenly and
-                leave no gap underneath. */}
-            <div className="flex gap-3 overflow-x-auto pb-2 lg:flex-1 lg:min-h-0 lg:flex-col lg:overflow-visible lg:pb-0 no-scrollbar">
-              {SKILL_CREW.map((c, i) => (
-                <CrewCard
-                  key={c.id}
-                  crew={c}
-                  active={i === active}
-                  onSelect={() => setActive(i)}
-                />
-              ))}
-            </div>
-
-            {/* decorative comic flourish (desktop), anchored at the bottom */}
-            <div className="hidden lg:block mt-5 pl-1 shrink-0">
-              <ComicBurst word="BOOT UP!" color="#4fd84f" style={{ fontSize: 'clamp(1.4rem,3vw,2.2rem)' }} />
-            </div>
-          </div>
-
-          {/* ===== Skills panel ===== */}
-          <div className="min-w-0 flex flex-col">
-            {/* active category banner */}
-            <div
-              className="rounded-2xl ink-border px-5 py-4 mb-5 flex items-center gap-4 overflow-hidden"
-              style={{ background: '#0e2417' }}
-            >
-              <span
-                className="w-2.5 self-stretch rounded-full shrink-0"
-                style={{ background: crew.color }}
-              />
+              {/* ===== Crew selector ===== */}
               <div className="min-w-0">
-                <div className="flex items-baseline gap-2 flex-wrap">
-                  <span className="font-impact text-2xl md:text-3xl text-stroke-thin" style={{ color: crew.color }}>
-                    {crew.name.toUpperCase()}
-                  </span>
-                  <span className="font-display text-white/90 text-lg md:text-xl">— {crew.role}</span>
+                <div className="mb-3">
+                  <div className="font-display text-white text-lg md:text-xl">MEET THE CREW <span className="align-middle">🐾</span></div>
+                  <p className="text-white/50 font-body text-xs mt-0.5 italic">(aka the tech that backs my skills)</p>
                 </div>
-                <p className="text-white/70 font-body text-sm md:text-base leading-snug mt-0.5">{crew.blurb}</p>
-              </div>
-              <span className="ml-auto shrink-0 font-display text-white/50 text-sm text-right leading-tight">
-                {crew.skills.length}<br />POWERS
-              </span>
-            </div>
 
-            {/* skills — a fixed-size block. Each character shows one page
-                (up to PAGE_SIZE); anything beyond that is swipeable, so the
-                block stays exactly the same height whether a character has 5
-                skills or 7. */}
-            <SkillsDeck crew={crew} />
+                {/* Horizontal scroll on mobile; stacks on desktop at natural
+                    height (no flex-1 stretch — that's what left the dead space). */}
+                <div className="flex gap-3 overflow-x-auto pb-2 lg:flex-col lg:overflow-visible lg:pb-0 no-scrollbar">
+                  {SKILL_CREW.map((c, i) => (
+                    <CrewCard
+                      key={c.id}
+                      crew={c}
+                      active={i === active}
+                      onSelect={() => setActive(i)}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* ===== Skills panel ===== */}
+              <div className="min-w-0">
+                {/* active category banner */}
+                <div className="flex items-center gap-3 mb-4 pb-3 border-b-2 border-white/10">
+                  <span
+                    className="w-1.5 self-stretch rounded-full shrink-0"
+                    style={{ background: crew.color }}
+                  />
+                  <div className="min-w-0">
+                    <div className="flex items-baseline gap-2 flex-wrap">
+                      <span className="font-impact text-xl md:text-2xl text-stroke-thin" style={{ color: crew.color }}>
+                        {crew.name.toUpperCase()}
+                      </span>
+                      <span className="font-display text-white/85 text-base md:text-lg">— {crew.role}</span>
+                    </div>
+                    <p className="text-white/60 font-body text-sm leading-snug mt-0.5">{crew.blurb}</p>
+                  </div>
+                  <span
+                    className="ml-auto shrink-0 font-display text-xs tracking-widest uppercase"
+                    style={{ color: crew.color }}
+                  >
+                    Active
+                  </span>
+                </div>
+
+                {/* skills — a fixed-size block. Each character shows one page
+                    (up to PAGE_SIZE); anything beyond that is swipeable, so the
+                    block stays exactly the same height whether a character has 5
+                    skills or 7. */}
+                <SkillsDeck crew={crew} />
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* shape-shift roles — a full-width endless news-ticker strip sitting
-            directly under the whole crew + skills block */}
-        <div className="mt-6 lg:mt-6">
-          <div className="font-display text-white/70 text-sm mb-1.5 pl-1">…AND EVERY FORM IN BETWEEN</div>
+        {/* shape-shift roles — a full-width endless news-ticker strip tucked
+            directly under the crew + skills frame */}
+        <div className="mt-3">
           <FormsMarquee />
         </div>
+      </div>
       </div>
     </section>
   )
@@ -175,7 +170,7 @@ function CrewCard({ crew, active, onSelect }) {
       onClick={onSelect}
       onMouseEnter={onSelect}
       aria-pressed={active}
-      className="magnetic group relative shrink-0 w-[230px] lg:w-full lg:flex-1 lg:min-h-0 text-left rounded-2xl ink-border p-3 flex items-center gap-3 overflow-hidden outline-none"
+      className="magnetic group relative shrink-0 w-[230px] lg:w-full text-left rounded-2xl ink-border p-3 flex items-center gap-3 overflow-hidden outline-none"
       style={{
         background: active ? '#12301c' : '#0e2417',
         boxShadow: active
@@ -245,7 +240,7 @@ function SkillCard({ skill, n, accent }) {
         show: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 240, damping: 18 } },
       }}
       whileHover={{ y: -6 }}
-      className="magnetic group relative rounded-2xl ink-border p-4 md:p-5 overflow-hidden"
+      className="magnetic group relative rounded-2xl ink-border p-3 md:p-4 overflow-hidden"
       style={{ background: '#0e2417' }}
       data-hot
     >
@@ -346,7 +341,7 @@ function SkillsDeck({ crew }) {
             initial="hidden"
             animate="show"
             variants={{ hidden: {}, show: { transition: { staggerChildren: 0.05 } } }}
-            className="snap-start shrink-0 w-full grid grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5 content-start"
+            className="snap-start shrink-0 w-full grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 content-start"
           >
             {pg.map((s, i) => (
               <SkillCard key={s.name} skill={s} n={pi * PAGE_SIZE + i + 1} accent={crew.color} />

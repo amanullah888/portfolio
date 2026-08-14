@@ -4,49 +4,82 @@ import { Reveal, PanelTag, SpeechBubble } from '../ui'
 import Particles from '../Particles'
 import { PERSONALITY } from '../../data/content'
 
+// accent palettes reused for the trait pills and the fact icon tiles
+const TRAIT_COLORS = ['#ffd21e', '#4fd84f', '#1a8cff', '#7b2ff7', '#ff3ea5', '#ffffff']
+const FACT_COLORS = ['#ff3ea5', '#1a8cff', '#4fd84f', '#ffd21e', '#ff3ea5']
+
 export default function Personality() {
   return (
-    <section id="personality" className="relative screen py-14 md:py-20 overflow-hidden vignette grid"
-      style={{ background: 'radial-gradient(120% 100% at 70% 0%, #ff5fb0, #b3126e 45%, #4d0a3f 100%)' }}>
+    <section id="personality" className="panel overflow-hidden vignette"
+      style={{ background: [
+        // spotlight glow at the top-centre — fades to transparent so it never
+        // touches the panel edges
+        'radial-gradient(120% 85% at 50% 16%, rgba(224,84,188,0.5) 0%, rgba(199,61,160,0.22) 40%, rgba(199,61,160,0) 60%)',
+        // vertical base: top edge is a flat #c73da0 (matches the SPARKLE divider
+        // below it) and the bottom edge is a flat #3d1150 (matches ZAP above Hire)
+        'linear-gradient(180deg, #c73da0 0%, #a82d88 22%, #7a2270 54%, #3d1150 100%)',
+      ].join(', ') }}>
       <Particles count={26} variant="star" />
-      <div className="absolute inset-0 halftone-light opacity-30" />
+      <div className="absolute inset-0 halftone-light opacity-25" />
 
-      {/* giant Starfire anchored left — shares the content's grid cell so her
-          bottom edge tracks the content's actual bottom (see Powers.jsx). */}
-      <div className="z-[2] pointer-events-none drift char-glow hidden lg:flex items-end justify-self-start self-end ml-[1%]"
-        style={{ height: 'min(58svh,460px)', gridRow: 1, gridColumn: 1 }}
+      {/* giant Starfire anchored to the panel's bottom-left as a decorative
+          layer (outside the scroll region so she stays put while the content
+          scrolls, if it ever needs to). */}
+      <div className="absolute bottom-0 left-[1%] z-[2] pointer-events-none drift char-glow hidden lg:flex items-end"
+        style={{ height: 'min(58svh,460px)' }}
         data-editable-id="personality__starfire" data-editable-label="Starfire (character)">
         <Character id="starfire" variant="giant" className="h-full w-auto" style={{ width: 'auto', height: '100%' }} />
       </div>
-      <div className="absolute top-[15%] left-[16%] z-30 hidden lg:block">
+      <div className="absolute top-[14%] left-[15%] z-30 hidden lg:block">
         <SpeechBubble tail="left" color="#fff" editId="personality__bubble" label="Starfire bubble">
           <span className="text-sm">Ooh! Please,<br />enjoy the <b>fun facts!</b></span>
         </SpeechBubble>
       </div>
 
-      <div className="relative z-10 mx-auto w-[min(1320px,92vw)] self-start" style={{ gridRow: 1, gridColumn: 1 }}>
-        <div className="mb-12 lg:ml-auto lg:max-w-[70%] lg:text-right">
-          <PanelTag color="#ffd21e">THE SOFTER SIDE</PanelTag>
-          <h2 className="mt-4 mega text-white" style={{ fontSize: 'clamp(3rem,8vw,6.5rem)' }}>
-            FUN FACTS ABOUT ME
-          </h2>
+      {/* section tag pinned to the top-right corner, like the reference */}
+      <div className="absolute top-6 right-6 z-30 hidden md:block"
+        data-editable-id="personality__tag" data-editable-label="Softer side tag">
+        <PanelTag color="#ffd21e">THE SOFTER SIDE</PanelTag>
+      </div>
+
+      <div className="panel-scroll">
+      <div className="panel-inner relative z-10 mx-auto w-[min(1320px,92vw)] py-10 md:py-12">
+        {/* header — centred over the content column with a soft dark splash so
+            the white title pops against the bright gradient. */}
+        <div className="mb-8 md:mb-10 lg:ml-auto lg:max-w-[72%] text-center">
+          <div className="relative inline-block">
+            <div className="absolute -inset-x-8 -inset-y-4 -z-10 rounded-[45%] bg-black/45 blur-2xl" aria-hidden />
+            <h2 className="mega text-white" style={{ fontSize: 'clamp(2.6rem,7vw,6rem)' }}>
+              FUN FACTS ABOUT ME
+            </h2>
+          </div>
+          <p className="mt-4 font-display text-xl md:text-2xl text-white/90 tracking-wide">
+            A mix of <span style={{ color: '#4dc3ff' }}>skills</span>,{' '}
+            <span style={{ color: '#ff3ea5' }}>quirks</span>, and{' '}
+            <span style={{ color: '#ffd21e' }}>superpowers</span>.
+          </p>
         </div>
 
-        <div className="lg:ml-auto lg:max-w-[70%] grid lg:grid-cols-[1fr_1.2fr] gap-8 items-start">
+        <div className="lg:ml-auto lg:max-w-[72%] grid lg:grid-cols-[0.9fr_1.15fr] gap-6 lg:gap-8 items-start">
           {/* traits */}
           <Reveal>
-            <div className="ink-border-lg rounded-3xl p-7 bg-white/10 backdrop-blur">
-              <div className="font-display text-tt-yellow text-2xl mb-4">WHAT I BRING TO THE TEAM</div>
-              <div className="flex flex-wrap gap-3">
+            <div className="ink-border-lg rounded-3xl p-6 md:p-7"
+              style={{ background: 'rgba(58,18,74,0.72)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}>
+              <div className="inline-block font-display text-lg md:text-xl px-5 py-2 mb-5 ink-border rounded-full"
+                style={{ background: '#ff3ea5', color: '#0b0b12' }}>
+                WHAT I BRING TO THE TEAM
+              </div>
+              <div className="grid grid-cols-2 gap-3">
                 {PERSONALITY.traits.map((t, i) => (
                   <motion.span
                     key={t}
-                    whileHover={{ scale: 1.1, rotate: i % 2 ? 3 : -3 }}
-                    className="magnetic font-display text-lg px-4 py-2 rounded-full ink-border"
-                    style={{ background: ['#ffd21e', '#4fd84f', '#1a8cff', '#7b2ff7', '#ff3ea5', '#fff'][i % 6], color: '#0b0b12' }}
+                    whileHover={{ scale: 1.06, rotate: i % 2 ? 2 : -2 }}
+                    className="magnetic font-display text-sm md:text-base px-3 py-2.5 rounded-xl ink-border flex items-center gap-2"
+                    style={{ background: TRAIT_COLORS[i % TRAIT_COLORS.length], color: '#0b0b12' }}
                     data-hot
                   >
-                    ★ {t}
+                    <span className="shrink-0">★</span>
+                    <span className="leading-tight">{t}</span>
                   </motion.span>
                 ))}
               </div>
@@ -56,19 +89,23 @@ export default function Personality() {
           {/* fun facts list */}
           <div className="space-y-3">
             {PERSONALITY.funFacts.map((f, i) => (
-              <Reveal key={f.t} delay={i * 0.07}>
+              <Reveal key={f.t} delay={i * 0.06}>
                 <motion.div
                   whileHover={{ x: 8 }}
-                  className="magnetic flex items-center gap-4 ink-border rounded-2xl p-4 bg-white/95"
+                  className="magnetic flex items-center gap-4 ink-border rounded-2xl p-3 pr-5 bg-white"
                   data-hot
                 >
-                  <span className="text-4xl">{f.icon}</span>
-                  <span className="font-body font-semibold text-tt-ink text-lg">{f.t}</span>
+                  <span className="grid place-items-center rounded-xl ink-border shrink-0 text-3xl"
+                    style={{ width: 56, height: 56, background: FACT_COLORS[i % FACT_COLORS.length] }}>
+                    {f.icon}
+                  </span>
+                  <span className="font-body font-semibold text-tt-ink text-base md:text-lg leading-snug">{f.t}</span>
                 </motion.div>
               </Reveal>
             ))}
           </div>
         </div>
+      </div>
       </div>
     </section>
   )

@@ -13,7 +13,7 @@ export default function Hero({ lenis }) {
   return (
     <section
       id="hero"
-      className="relative min-h-[100svh] overflow-hidden vignette"
+      className="panel vignette"
       style={{
         backgroundImage:
           "linear-gradient(100deg, rgba(7,20,45,0.82) 0%, rgba(7,20,45,0.55) 45%, rgba(7,20,45,0.35) 100%), " +
@@ -24,13 +24,29 @@ export default function Hero({ lenis }) {
         backgroundRepeat: 'no-repeat',
       }}
     >
+      {/* window bloom — brightens the tower's warm windows so they glow like real lights.
+          Reuses the same image + position as the background so it tracks the tower on any viewport. */}
+      <div
+        className="absolute inset-0 pointer-events-none tower-glow mix-blend-screen"
+        style={{
+          backgroundImage: "url('/hero/titans-tower.webp')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center 25%',
+          backgroundRepeat: 'no-repeat',
+          // crush the dark-blue mids to black so the scene stays dark; only the
+          // bright warm window pixels survive to glow through the screen blend.
+          filter: 'brightness(0.8) contrast(3.6) saturate(1.7) blur(2px)',
+        }}
+      />
+
       {/* atmosphere */}
       <div className="absolute inset-0 speed-lines opacity-20 spin-slower" />
       <div className="absolute inset-0 halftone-light opacity-20" />
       <Particles count={26} variant="bolt" className="opacity-70" />
 
       {/* balanced two-column layout inside one centred container */}
-      <div className="relative z-[5] mx-auto w-[min(1200px,92vw)] min-h-[100svh] grid md:grid-cols-[1fr_0.85fr] gap-0 items-center pt-24 md:pt-6">
+      <div className="panel-scroll">
+      <div className="panel-inner relative z-[5] mx-auto w-[min(1200px,92vw)] grid md:grid-cols-[1fr_0.85fr] gap-0 items-center pt-24 md:pt-6">
         {/* ---------- Text ---------- */}
         <div className="order-2 md:order-1 pb-8 md:pb-0">
           {/* Robin introduces Aman — the eyebrow reads as Robin speaking */}
@@ -166,6 +182,7 @@ export default function Hero({ lenis }) {
             </motion.div>
           </div>
         </div>
+      </div>
       </div>
 
       {/* scroll cue */}

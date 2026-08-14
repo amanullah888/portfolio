@@ -14,12 +14,12 @@ export const PROFILE = {
 
 // Robin — "My Superpowers" (skills reframed as powers)
 export const POWERS = [
-  { name: 'Frontend Development', power: 'Lightning Hands', icon: '⚡', color: 'tt-yellow', desc: 'React, Next.js & pixel-perfect UI at blazing speed.' },
-  { name: 'Backend Development', power: 'Infinite Logic', icon: '🧠', color: 'tt-blue', desc: 'APIs, databases & systems that never blink.' },
-  { name: 'AI Engineering', power: 'Neural Brain', icon: '🤖', color: 'tt-purple', desc: 'LLMs, automation & smart pipelines.' },
-  { name: 'Automation', power: 'Clone Army', icon: '🌀', color: 'tt-green', desc: 'n8n, bots & workflows that do the boring parts.' },
-  { name: 'Problem Solving', power: 'Detective Mode', icon: '🔎', color: 'tt-pink', desc: 'Debugging mysteries nobody else can crack.' },
-  { name: 'Fast Learning', power: 'XP Multiplier', icon: '📈', color: 'tt-yellow', desc: 'New stack? Consider it already learned.' },
+  { name: 'Frontend Development', badge: 'Frontend', power: 'Lightning Hands', icon: '⚡', color: 'tt-yellow', desc: 'React, Next.js & pixel-perfect UI at blazing speed.', tags: ['React', 'Next.js', 'Tailwind'] },
+  { name: 'Backend Development', badge: 'Backend', power: 'Infinite Logic', icon: '🧠', color: 'tt-blue', desc: 'APIs, databases & systems that never blink.', tags: ['Python', 'FastAPI', 'PostgreSQL'] },
+  { name: 'AI Engineering', badge: 'AI Engineering', power: 'Neural Brain', icon: '🤖', color: 'tt-purple', desc: 'LLMs, automation & smart pipelines.', tags: ['LangChain', 'OpenAI', 'Pinecone'] },
+  { name: 'Automation', badge: 'Automation', power: 'Clone Army', icon: '🌀', color: 'tt-green', desc: 'n8n, bots & workflows that do the boring parts.', tags: ['n8n', 'Bots', 'Workflows'] },
+  { name: 'Problem Solving', badge: 'Problem Solver', power: 'Detective Mode', icon: '🔎', color: 'tt-pink', desc: 'Debugging mysteries nobody else can crack.', tags: ['Debugging', 'DSA', 'Logs'] },
+  { name: 'Fast Learning', badge: 'Fast Learner', power: 'XP Multiplier', icon: '📈', color: 'tt-yellow', desc: 'New stack? Consider it already learned.', tags: ['Any Stack', 'Docs', 'Speed'] },
 ]
 
 // Beast Boy — the real tech stack, grouped into "the crew".

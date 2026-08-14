@@ -1,81 +1,252 @@
+import { useRef, useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import Character from '../Character'
-import { Reveal, PanelTag, SpeechBubble } from '../ui'
+import { Reveal, PanelTag, SpeechBubble, ComicBurst } from '../ui'
 import { PROJECTS } from '../../data/content'
 
-export default function Projects() {
-  return (
-    <section id="projects" className="relative py-16 md:py-24 overflow-hidden"
-      style={{ background: 'linear-gradient(180deg,#160a2e,#2a0a52 55%,#1a0740)' }}>
-      <div className="absolute inset-0 halftone-light opacity-30" />
+/* ---------------------------------------------------------------------------
+   Projects — "The team shows off"
+   A horizontal, swipeable comic-card carousel. Each Titan-themed card is a
+   numbered case file: character art + icon badge in the header, then title,
+   one-liner, tech tags and a launch arrow. Drag / swipe / arrows to browse;
+   the run ends on a "MORE COMING SOON!" card.
+--------------------------------------------------------------------------- */
 
-      <div className="relative z-10 mx-auto w-[min(1320px,92vw)]">
-        <div className="text-center mb-16">
+export default function Projects() {
+  const scroller = useRef(null)
+  const [atStart, setAtStart] = useState(true)
+  const [atEnd, setAtEnd] = useState(false)
+
+  // Refresh the arrow enabled/disabled state from the live scroll position.
+  const syncEdges = useCallback(() => {
+    const el = scroller.current
+    if (!el) return
+    const max = el.scrollWidth - el.clientWidth
+    setAtStart(el.scrollLeft <= 4)
+    setAtEnd(el.scrollLeft >= max - 4)
+  }, [])
+
+  useEffect(() => {
+    syncEdges()
+    window.addEventListener('resize', syncEdges)
+    return () => window.removeEventListener('resize', syncEdges)
+  }, [syncEdges])
+
+  // Scroll by roughly one card (+ gap) in either direction.
+  const nudge = (dir) => {
+    const el = scroller.current
+    if (!el) return
+    const card = el.querySelector('[data-card]')
+    const step = card ? card.offsetWidth + 24 : el.clientWidth * 0.8
+    el.scrollBy({ left: dir * step, behavior: 'smooth' })
+  }
+
+  // Pointer drag-to-scroll (desktop mouse feels like a real swipe).
+  const drag = useRef({ down: false, startX: 0, startLeft: 0, moved: false })
+  const onPointerDown = (e) => {
+    const el = scroller.current
+    if (!el) return
+    drag.current = { down: true, startX: e.clientX, startLeft: el.scrollLeft, moved: false }
+    el.setPointerCapture?.(e.pointerId)
+  }
+  const onPointerMove = (e) => {
+    if (!drag.current.down) return
+    const el = scroller.current
+    const dx = e.clientX - drag.current.startX
+    if (Math.abs(dx) > 4) drag.current.moved = true
+    el.scrollLeft = drag.current.startLeft - dx
+  }
+  const endDrag = (e) => {
+    const el = scroller.current
+    drag.current.down = false
+    el?.releasePointerCapture?.(e.pointerId)
+  }
+
+  return (
+    <section id="projects" className="panel overflow-hidden"
+      style={{ background: 'linear-gradient(180deg,#160a2e,#2a0a52 55%,#1a0740)' }}>
+      <div className="absolute inset-0 halftone-light opacity-25" />
+
+      {/* ---- floating comic decorations (desktop only, non-interactive) ---- */}
+      <ComicBurst word="BAM!" color="#7ec8ff"
+        className="absolute top-[16%] left-[3%] z-[3] hidden xl:block drift pointer-events-none" />
+      <div className="absolute top-[15%] right-[3%] z-[3] hidden xl:block floaty pointer-events-none">
+        <SpeechBubble tail="right" color="#fff">
+          <span className="text-sm font-display tracking-wide">BUILT WITH<br />CODE &amp; CAFFEINE!</span>
+        </SpeechBubble>
+      </div>
+      <div className="absolute bottom-[10%] left-[4%] z-[3] hidden xl:block wobble pointer-events-none">
+        <SpeechBubble tail="bottom-left" color="#fff">
+          <span className="text-sm font-display tracking-wide">IDEAS TODAY,<br />IMPACT TOMORROW.</span>
+        </SpeechBubble>
+      </div>
+      <ComicBurst word="ALWAYS BUILDING!" color="#ffd21e" size="clamp(1.5rem,2.6vw,2.4rem)"
+        className="absolute bottom-[3%] right-[3%] z-[3] hidden xl:block pop-blink pointer-events-none" />
+
+      <div className="panel-scroll">
+      <div className="panel-inner relative z-10 mx-auto w-[min(1320px,94vw)] py-6 md:py-8">
+        {/* ---- heading ---- */}
+        <div className="text-center mb-4 md:mb-6">
           <PanelTag color="#7b2ff7">THE TEAM SHOWS OFF</PanelTag>
-          <h2 className="mt-4 mega text-white" style={{ fontSize: 'clamp(3.2rem,9vw,7rem)' }}>
+          <h2 className="mt-3 mega text-white" style={{ fontSize: 'clamp(2.8rem,7.5vw,5.6rem)' }}>
             MY PROJECTS
           </h2>
-          <p className="mt-4 text-white/85" style={{ fontSize: 'clamp(1.1rem,1.5vw,1.4rem)' }}>Each Titan grabbed one to brag about. Hover to open the case file.</p>
+          <p className="mt-2 text-white/85" style={{ fontSize: 'clamp(1rem,1.4vw,1.25rem)' }}>
+            A squad of builds, experiments and automations. <span className="hidden sm:inline">Swipe to see more.</span>
+          </p>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {PROJECTS.map((p, i) => (
-            <Reveal key={p.name} delay={i * 0.08}>
-              <motion.article
-                whileHover="open"
-                initial="closed"
-                className="magnetic group relative rounded-3xl ink-border-lg overflow-hidden h-full flex flex-col"
-                style={{ background: '#120726' }}
-                data-hot
-              >
-                {/* header with emoji + guide */}
-                <div className="relative h-52 flex items-center justify-center overflow-hidden"
-                  style={{ background: `radial-gradient(circle at 50% 20%, ${p.accent}, #0b0620)` }}>
-                  <div className="absolute inset-0 halftone opacity-20" />
-                  <motion.div
-                    variants={{ closed: { scale: 1, rotate: 0 }, open: { scale: 1.15, rotate: -6 } }}
-                    transition={{ type: 'spring', stiffness: 200, damping: 12 }}
-                    className="text-8xl drop-shadow-xl"
-                  >
-                    {p.emoji}
-                  </motion.div>
-                  <div className="absolute -bottom-3 right-2 h-32 w-auto opacity-95 group-hover:-translate-y-1.5 transition-transform">
-                    <Character id={p.guide} variant="badge" className="h-full w-auto" style={{ width: 'auto', height: '100%' }} />
-                  </div>
-                  <motion.div
-                    variants={{ closed: { opacity: 0, y: 8 }, open: { opacity: 1, y: 0 } }}
-                    className="absolute top-3 left-3"
-                  >
-                    <SpeechBubble tail="left" color="#ffd21e" editId={`projects__bubble__${i}`} label={`${p.name} bubble`}><span className="text-xs">Check this out!</span></SpeechBubble>
-                  </motion.div>
-                </div>
+        {/* ---- carousel ---- */}
+        <div className="relative">
+          {/* prev / next arrows (desktop) */}
+          <CarouselArrow dir="prev" onClick={() => nudge(-1)} disabled={atStart} />
+          <CarouselArrow dir="next" onClick={() => nudge(1)} disabled={atEnd} />
 
-                {/* body */}
-                <div className="p-7 flex flex-col flex-1">
-                  <h3 className="font-display text-4xl" style={{ color: p.accent }}>{p.name}</h3>
-                  <div className="font-display text-white/70 text-lg">{p.tagline}</div>
-                  <p className="mt-3 text-white/80 leading-snug flex-1">{p.desc}</p>
+          {/* edge fades hint at more off-screen */}
+          <div className={`pointer-events-none absolute inset-y-0 left-0 w-14 z-[2] transition-opacity ${atStart ? 'opacity-0' : 'opacity-100'}`}
+            style={{ background: 'linear-gradient(90deg,#1c0a3e,transparent)' }} />
+          <div className={`pointer-events-none absolute inset-y-0 right-0 w-14 z-[2] transition-opacity ${atEnd ? 'opacity-0' : 'opacity-100'}`}
+            style={{ background: 'linear-gradient(270deg,#22094a,transparent)' }} />
 
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {p.stack.map((s) => (
-                      <span key={s} className="text-xs font-display px-2.5 py-1 rounded-full ink-border"
-                        style={{ background: '#1c0f38', color: '#fff', border: '2px solid #000' }}>
-                        {s}
-                      </span>
-                    ))}
-                  </div>
-
-                  <a href={p.link} target={p.link !== '#' ? '_blank' : undefined} rel="noreferrer"
-                    className="mt-6 btn-comic inline-block rounded-xl px-5 py-3 font-display text-xl w-full text-center"
-                    style={{ background: p.accent, color: '#0b0b12' }}>
-                    VIEW PROJECT →
-                  </a>
-                </div>
-              </motion.article>
-            </Reveal>
-          ))}
+          <div
+            ref={scroller}
+            onScroll={syncEdges}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={endDrag}
+            onPointerCancel={endDrag}
+            className="no-scrollbar flex gap-6 overflow-x-auto snap-x snap-mandatory pb-4 pt-2 px-1 cursor-grab active:cursor-grabbing"
+            style={{ scrollBehavior: 'smooth', touchAction: 'pan-y' }}
+          >
+            {PROJECTS.map((p, i) => (
+              <ProjectCard key={p.name} p={p} n={i + 1} dragRef={drag} />
+            ))}
+            <ComingSoonCard />
+          </div>
         </div>
+
+        {/* ---- "more coming soon" banner ---- */}
+        <Reveal>
+          <div className="mt-4 flex justify-center">
+            <div className="relative inline-flex items-center gap-3 ink-border rounded-full px-7 py-3 font-display text-xl md:text-2xl tracking-wide wobble"
+              style={{ background: '#0e0524', color: '#ffd21e' }}>
+              <span className="text-tt-purple">✦</span>
+              MORE COMING SOON!
+              <span className="text-tt-yellow flicker">⚡</span>
+            </div>
+          </div>
+        </Reveal>
+      </div>
       </div>
     </section>
+  )
+}
+
+/* ---- single project case-file card ---- */
+function ProjectCard({ p, n, dragRef }) {
+  // Ignore the click that ends a drag so a swipe never fires the link.
+  const guardClick = (e) => {
+    if (dragRef.current?.moved) e.preventDefault()
+  }
+  return (
+    <motion.article
+      data-card
+      whileHover={{ y: -8 }}
+      transition={{ type: 'spring', stiffness: 260, damping: 18 }}
+      className="group relative snap-start shrink-0 w-[82vw] sm:w-[360px] rounded-3xl ink-border-lg overflow-hidden flex flex-col"
+      style={{ background: '#100626' }}
+    >
+      {/* header: character art + icon badge over an accent glow */}
+      <div className="relative h-36 overflow-hidden"
+        style={{ background: `radial-gradient(circle at 32% 30%, ${p.accent}, #0b0620 78%)` }}>
+        <div className="absolute inset-0 speed-lines opacity-30" />
+        <div className="absolute inset-0 halftone opacity-20" />
+
+        {/* number badge */}
+        <div className="absolute top-3 left-3 z-10 font-display text-2xl text-white text-stroke-thin">
+          {String(n).padStart(2, '0')}
+        </div>
+
+        {/* icon badge (emoji) */}
+        <div className="absolute top-3 right-3 z-10 h-14 w-14 rounded-full grid place-items-center ink-border text-2xl group-hover:rotate-12 transition-transform"
+          style={{ background: '#0b0620', boxShadow: `0 0 22px ${p.accent}` }}>
+          {p.emoji}
+        </div>
+
+        {/* character mascot */}
+        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 h-32 w-auto opacity-95 group-hover:scale-105 group-hover:-translate-y-1 transition-transform duration-300 pointer-events-none">
+          <Character id={p.guide} variant="badge" className="h-full w-auto" style={{ width: 'auto', height: '100%' }} />
+        </div>
+      </div>
+
+      {/* body */}
+      <div className="p-5 flex flex-col flex-1">
+        <h3 className="font-display text-3xl leading-none" style={{ color: p.accent }}>{p.name}</h3>
+        <p className="mt-2 text-white/80 leading-snug"
+          style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          {p.tagline}
+        </p>
+
+        <div className="mt-3 flex flex-wrap gap-2">
+          {p.stack.slice(0, 3).map((s) => (
+            <span key={s} className="text-xs font-body font-semibold px-2.5 py-1 rounded-full"
+              style={{ background: '#1c0f38', color: '#fff', border: '2px solid #000' }}>
+              {s}
+            </span>
+          ))}
+        </div>
+
+        {/* launch arrow */}
+        <div className="mt-auto pt-4 flex justify-end">
+          <a
+            href={p.link}
+            onClick={guardClick}
+            target={p.link !== '#' ? '_blank' : undefined}
+            rel="noreferrer"
+            aria-label={`Open ${p.name}`}
+            className="btn-comic grid place-items-center h-11 w-11 rounded-xl"
+            style={{ background: p.accent, color: '#0b0b12' }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M7 17 17 7M9 7h8v8" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </motion.article>
+  )
+}
+
+/* ---- closing "more coming soon" card ---- */
+function ComingSoonCard() {
+  return (
+    <div data-card
+      className="relative snap-start shrink-0 w-[82vw] sm:w-[360px] rounded-3xl overflow-hidden flex flex-col items-center justify-center text-center p-8"
+      style={{ border: '4px dashed rgba(255,255,255,0.35)' }}>
+      <div className="absolute inset-0 halftone-light opacity-20" />
+      <div className="text-6xl mb-4 floaty">🚧</div>
+      <div className="font-display text-4xl text-white leading-none">MORE<br />COMING<br />SOON!</div>
+      <p className="mt-4 text-white/70">New case files are in the lab.</p>
+      <div className="mt-5 font-display text-2xl text-tt-yellow pop-blink">⚡ STAY TUNED ⚡</div>
+    </div>
+  )
+}
+
+/* ---- circular comic nav arrow ---- */
+function CarouselArrow({ dir, onClick, disabled }) {
+  const isPrev = dir === 'prev'
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={isPrev ? 'Previous projects' : 'Next projects'}
+      className={`hidden md:grid place-items-center absolute top-1/2 -translate-y-1/2 z-20 h-12 w-12 rounded-full ink-border font-display text-2xl transition-all duration-200
+        ${isPrev ? '-left-5' : '-right-5'}
+        ${disabled ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:scale-110'}`}
+      style={{ background: '#ffd21e', color: '#0b0b12' }}
+    >
+      {isPrev ? '‹' : '›'}
+    </button>
   )
 }

@@ -11,10 +11,10 @@ import { POWERS } from '../data/content'
  * same place. Dots show position and jump to a card.
  */
 
-const bg = {
+const accent = {
   'tt-yellow': '#ffd21e',
   'tt-blue': '#1a8cff',
-  'tt-purple': '#7b2ff7',
+  'tt-purple': '#a35bff',
   'tt-green': '#4fd84f',
   'tt-pink': '#ff3ea5',
 }
@@ -153,31 +153,74 @@ export default function PowersCarousel() {
         className="no-scrollbar flex gap-5 overflow-x-auto snap-x snap-mandatory pb-2 cursor-grab select-none"
         style={{ scrollBehavior: 'auto', overscrollBehaviorX: 'contain' }}
       >
-        {POWERS.map((p, i) => (
-          <motion.article
-            key={p.name}
-            className="snap-center shrink-0 w-[80%] sm:w-[52%] lg:w-[38%] xl:w-[31%] relative ink-border rounded-3xl p-6 overflow-hidden"
-            style={{ background: bg[p.color] }}
-            animate={{
-              scale: i === idx ? 1 : 0.94,
-              opacity: i === idx ? 1 : 0.72,
-            }}
-            transition={{ type: 'spring', stiffness: 220, damping: 24 }}
-            data-hot
-          >
-            <div className="absolute -right-6 -top-6 opacity-20 text-[8rem] leading-none pointer-events-none">
-              {p.icon}
-            </div>
-            <div className="relative">
-              <div className="text-6xl mb-3">{p.icon}</div>
-              <div className="font-impact text-3xl md:text-4xl text-stroke-thin" style={{ color: '#0b0b12' }}>
-                {p.power}
+        {POWERS.map((p, i) => {
+          const c = accent[p.color]
+          return (
+            <motion.article
+              key={p.name}
+              className="snap-center shrink-0 w-[78%] sm:w-[46%] lg:w-[31%] xl:w-[24%] relative rounded-2xl overflow-hidden"
+              style={{
+                background: `linear-gradient(160deg, ${c}1f 0%, rgba(11,11,18,0.96) 55%)`,
+                border: `2px solid ${c}`,
+                boxShadow: `0 0 0 4px #000, 8px 8px 0 rgba(0,0,0,0.85), 0 0 26px ${c}40`,
+              }}
+              animate={{
+                scale: i === idx ? 1 : 0.92,
+                opacity: i === idx ? 1 : 0.6,
+              }}
+              transition={{ type: 'spring', stiffness: 220, damping: 24 }}
+              data-hot
+            >
+              {/* faint oversized glyph in the corner */}
+              <div className="absolute -right-4 -top-4 opacity-10 text-[6rem] leading-none pointer-events-none">
+                {p.icon}
               </div>
-              <div className="font-display text-xl text-tt-ink/80 mt-0.5">{p.name}</div>
-              <p className="mt-3 text-tt-ink/85 font-medium leading-snug text-lg">{p.desc}</p>
-            </div>
-          </motion.article>
-        ))}
+
+              <div className="relative p-5">
+                {/* category badge */}
+                <span
+                  className="inline-block font-display text-[0.7rem] tracking-widest uppercase px-2.5 py-1 rounded-md text-tt-ink"
+                  style={{ background: c, boxShadow: '2px 2px 0 rgba(0,0,0,0.85)' }}
+                >
+                  {p.badge}
+                </span>
+
+                {/* icon */}
+                <div className="text-4xl mt-4 mb-2">{p.icon}</div>
+
+                {/* power name */}
+                <h3
+                  className="font-impact text-2xl md:text-[1.65rem] leading-tight text-stroke-thin"
+                  style={{ color: c }}
+                >
+                  {p.power}
+                </h3>
+
+                {/* description */}
+                <p className="mt-2 text-white/75 font-medium leading-snug text-[0.95rem]">
+                  {p.desc}
+                </p>
+
+                {/* tag pills */}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {p.tags?.map((t) => (
+                    <span
+                      key={t}
+                      className="font-body text-xs font-semibold px-2.5 py-1 rounded-full"
+                      style={{
+                        color: c,
+                        border: `1.5px solid ${c}66`,
+                        background: `${c}14`,
+                      }}
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </motion.article>
+          )
+        })}
       </div>
 
       {/* dots */}
