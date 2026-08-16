@@ -46,9 +46,12 @@ export default function Hero({ lenis }) {
 
       {/* balanced two-column layout inside one centred container */}
       <div className="panel-scroll">
-      <div className="panel-inner relative z-[5] mx-auto w-[min(1200px,92vw)] grid md:grid-cols-[1fr_0.85fr] gap-0 items-center pt-24 md:pt-6">
-        {/* ---------- Text ---------- */}
-        <div className="order-2 md:order-1 pb-8 md:pb-0">
+      <div className="panel-inner relative z-[5] mx-auto w-[min(1200px,92vw)] grid md:grid-cols-[1fr_0.85fr] gap-0 items-center pt-20 md:pt-6">
+        {/* ---------- Text ----------
+            Name-first on mobile so the headline is the first thing you see and
+            never gets pushed below the fold (or clipped) by the character. On
+            desktop the grid puts this column on the left as before. */}
+        <div className="order-1 md:order-1 pb-4 md:pb-0">
           {/* Robin introduces Aman — the eyebrow reads as Robin speaking */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -71,8 +74,8 @@ export default function Hero({ lenis }) {
             initial={{ opacity: 0, scale: 0.7, rotate: -5 }}
             animate={{ opacity: 1, scale: 1, rotate: -2 }}
             transition={{ type: 'spring', stiffness: 120, damping: 10, delay: 0.4 }}
-            className="mega text-white mt-1"
-            style={{ fontSize: 'clamp(3rem,7.5vw,7rem)' }}
+            className="mega hero-name text-white mt-1"
+            style={{ fontSize: 'clamp(2.9rem,7.5vw,7rem)' }}
           >
             AMAN<br />ULLAH<br />KAZI
           </motion.h1>
@@ -124,37 +127,23 @@ export default function Hero({ lenis }) {
           </motion.div>
         </div>
 
-        {/* ---------- Character column ---------- */}
-        <div className="order-1 md:order-2 relative flex items-end justify-center self-stretch min-h-[42svh] md:min-h-0">
+        {/* ---------- Character column ----------
+            Below the name on mobile and capped shorter there so he doesn't eat
+            the whole screen; full-height on desktop where he shares the row. */}
+        <div className="order-2 md:order-2 relative flex items-end justify-center self-stretch min-h-0">
           {/* Robin + everything that should track him */}
           <div
-            className="relative z-10 flex items-end"
-            style={{ height: 'min(74svh, 620px)' }}
+            className="relative z-10 flex items-end h-[38svh] md:h-[min(74svh,620px)]"
           >
-            {/* halo / starburst centred behind Robin */}
+            {/* halo / starburst centred behind Robin — calm fade-in, no unlock pop */}
             <motion.div
               className="absolute left-1/2 top-[46%] -translate-x-1/2 -translate-y-1/2 aspect-square pointer-events-none"
               style={{ width: '150%', maxWidth: 620 }}
-              initial={{ scale: 0, rotate: -30, opacity: 0 }}
-              animate={{ scale: 1, rotate: 0, opacity: 0.85 }}
-              transition={{ type: 'spring', stiffness: 70, damping: 12, delay: 0.4 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.85 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
             >
               <StarBurst color="#ffd21e" size="100%" className="spin-slower w-full h-full opacity-80" />
-            </motion.div>
-
-            {/* NEW TITAN UNLOCKED banner */}
-            <motion.div
-              data-editable-id="hero__banner"
-              data-editable-label="NEW TITAN UNLOCKED banner"
-              initial={{ scale: 0, y: -50 }}
-              animate={{ scale: 1, y: 0 }}
-              transition={{ type: 'spring', stiffness: 180, damping: 9, delay: 1.5 }}
-              className="absolute -top-2 left-1/2 -translate-x-1/2 z-20 font-impact text-center whitespace-nowrap"
-            >
-              <span className="inline-block text-stroke comic-shadow text-tt-green -rotate-3"
-                style={{ fontSize: 'clamp(1.1rem,2.6vw,2.2rem)' }}>
-                NEW TITAN UNLOCKED!
-              </span>
             </motion.div>
 
             {/* Robin — capped so he fits the screen instead of overflowing */}
@@ -166,7 +155,7 @@ export default function Hero({ lenis }) {
               animate={{ y: 0, opacity: 1, rotate: 0, scale: 1 }}
               transition={{ type: 'spring', stiffness: 80, damping: 12, delay: 0.7 }}
             >
-              <Character id="robin" variant="giant" className="h-full w-auto" style={{ width: 'auto', height: '100%' }} />
+              <Character id="robin" variant="giant" priority alt="Robin striking a hero pose" className="h-full w-auto" style={{ width: 'auto', height: '100%' }} />
             </motion.div>
 
             {/* speech bubble — Robin's introduction */}

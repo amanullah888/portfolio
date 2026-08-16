@@ -55,11 +55,13 @@ export default function Shift() {
         <div className="mb-4 md:mb-5 flex items-end justify-between gap-6">
           <div>
             <PanelTag color="#4fd84f">BEAST BOY'S TALENT: NEXT LEVEL</PanelTag>
-            <h2 className="mt-2 mega text-white leading-[0.9]" style={{ fontSize: 'clamp(2.4rem,6vw,4.6rem)' }}>
+            {/* pb on the heading contains the hard drop-shadow so it can't bleed
+                onto the subheading below (which was overlapping it). */}
+            <h2 className="mt-3 mega text-white leading-[0.9] pb-2" style={{ fontSize: 'clamp(2.4rem,6vw,4.6rem)' }}>
               MY SKILLS
             </h2>
-            <p className="mt-1 text-tt-green font-display" style={{ fontSize: 'clamp(1rem,1.6vw,1.35rem)' }}>
-              These are my superpowers <span className="text-white/60">(kind of).</span>
+            <p className="mt-2 text-tt-green font-display" style={{ fontSize: 'clamp(1rem,1.6vw,1.35rem)' }}>
+              These are my superpowers <span className="text-white/70">(kind of).</span>
             </p>
           </div>
 
@@ -82,6 +84,8 @@ export default function Shift() {
               src={CREW_IMG('beastboy')}
               alt=""
               draggable={false}
+              loading="lazy"
+              decoding="async"
               className="w-20 xl:w-24 h-auto select-none drift char-glow"
               style={{ '--r': '2deg' }}
             />
@@ -99,7 +103,7 @@ export default function Shift() {
               <div className="min-w-0">
                 <div className="mb-3">
                   <div className="font-display text-white text-lg md:text-xl">MEET THE CREW <span className="align-middle">🐾</span></div>
-                  <p className="text-white/50 font-body text-xs mt-0.5 italic">(aka the tech that backs my skills)</p>
+                  <p className="text-white/70 font-body text-xs mt-0.5 italic">(aka the tech that backs my skills)</p>
                 </div>
 
                 {/* Horizontal scroll on mobile; stacks on desktop at natural
@@ -203,6 +207,8 @@ function CrewCard({ crew, active, onSelect }) {
           src={CREW_IMG(crew.id)}
           alt={crew.name}
           draggable={false}
+          loading="lazy"
+          decoding="async"
           className={`w-full h-full object-contain select-none transition-transform duration-300 ${active ? 'scale-110' : 'group-hover:scale-105'}`}
         />
       </span>
@@ -213,7 +219,7 @@ function CrewCard({ crew, active, onSelect }) {
           {crew.name}
         </span>
         <span className="block font-body text-white/70 text-xs leading-tight">{crew.vibe}</span>
-        <span className="block font-display text-white/45 text-[0.7rem] mt-0.5 tracking-wide">{crew.role}</span>
+        <span className="block font-display text-white/60 text-[0.7rem] mt-0.5 tracking-wide">{crew.role}</span>
       </span>
 
       {/* chevron */}
@@ -355,7 +361,7 @@ function SkillsDeck({ crew }) {
       {multi && (
         <div className="mt-3 h-9 flex items-center justify-between gap-3">
           <>
-            <span className="font-display text-white/45 text-xs tracking-wide">
+            <span className="font-display text-white/75 text-xs tracking-wide">
               ← SWIPE FOR MORE POWERS →
             </span>
             <div className="flex items-center gap-3">
@@ -367,13 +373,18 @@ function SkillsDeck({ crew }) {
                     onClick={() => goTo(i)}
                     aria-label={`Go to page ${i + 1}`}
                     aria-current={i === page}
-                    className="rounded-full border-2 border-black transition-all"
-                    style={{
-                      width: i === page ? 26 : 11,
-                      height: 11,
-                      background: i === page ? crew.color : 'rgba(255,255,255,0.3)',
-                    }}
-                  />
+                    className="grid place-items-center bg-transparent border-0 p-0 cursor-pointer"
+                    style={{ minWidth: 24, height: 24 }}
+                  >
+                    <span
+                      className="block rounded-full border-2 border-black transition-all"
+                      style={{
+                        width: i === page ? 26 : 11,
+                        height: 11,
+                        background: i === page ? crew.color : 'rgba(255,255,255,0.3)',
+                      }}
+                    />
+                  </button>
                 ))}
               </div>
               {/* arrows */}

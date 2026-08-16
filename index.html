@@ -5,7 +5,20 @@
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Aman Ullah Kazi — Full Stack Developer. A portfolio told like an animated Titans episode." />
-    <title>Aman Ullah Kazi — NEW TITAN UNLOCKED</title>
+    <title>Aman Ullah Kazi — Full Stack Developer</title>
+
+    <!-- Preload the above-the-fold hero art so the correct hero paints on first
+         frame — no blank gap or pop-in while the preloader animates. srcset
+         mirrors the <picture> in Character.jsx so the browser reuses this exact
+         fetch instead of downloading a second copy. -->
+    <link
+      rel="preload"
+      as="image"
+      type="image/webp"
+      imagesrcset="/characters-processed/giant/robin.webp 1x, /characters-processed/giant/robin@2x.webp 2x"
+      fetchpriority="high"
+    />
+    <link rel="preload" as="image" href="/hero/titans-tower.webp" type="image/webp" />
   </head>
   <body>
     <div id="root"></div>

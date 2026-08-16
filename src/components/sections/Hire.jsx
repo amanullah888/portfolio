@@ -102,7 +102,7 @@ export default function Hire() {
           <a href={`mailto:${PROFILE.email}`} className="magnetic btn-comic rounded-2xl px-7 py-4 text-2xl bg-tt-yellow text-tt-ink">
             LET'S TALK
           </a>
-          <a href={PROFILE.resumeUrl} className="magnetic btn-comic rounded-2xl px-7 py-4 text-2xl bg-tt-green text-tt-ink">
+          <a href={PROFILE.resumeUrl} target="_blank" rel="noreferrer" className="magnetic btn-comic rounded-2xl px-7 py-4 text-2xl bg-tt-green text-tt-ink">
             📄 RESUME
           </a>
         </motion.div>

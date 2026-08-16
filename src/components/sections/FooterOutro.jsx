@@ -59,9 +59,11 @@ export default function FooterOutro({ lenis }) {
             ))}
           </div>
 
-          <div className="mt-6 flex flex-wrap justify-center gap-4 text-white/70 text-sm">
-            <a className="magnetic hover:text-tt-yellow" href={`mailto:${PROFILE.email}`}>{PROFILE.email}</a>
-            <span>•</span>
+          <div className="mt-6 flex flex-wrap justify-center items-center gap-x-4 gap-y-2 text-white/70 text-sm">
+            {/* keep the email intact — never break it mid-word; it wraps to its
+                own line instead if the row is too narrow. */}
+            <a className="magnetic hover:text-tt-yellow whitespace-nowrap" href={`mailto:${PROFILE.email}`}>{PROFILE.email}</a>
+            <span aria-hidden="true">•</span>
             <a className="magnetic hover:text-tt-yellow" href={PROFILE.github} target="_blank" rel="noreferrer">GitHub</a>
             <span>•</span>
             <a className="magnetic hover:text-tt-yellow" href={PROFILE.linkedin} target="_blank" rel="noreferrer">LinkedIn</a>

@@ -14,13 +14,24 @@ import Personality from './components/sections/Personality'
 import Hire from './components/sections/Hire'
 import FooterOutro from './components/sections/FooterOutro'
 import Character from './components/Character'
-import VisualEditor from './editor/VisualEditor'
 
 gsap.registerPlugin(ScrollTrigger)
 
 export default function App() {
   const [lenis, setLenis] = useState(null)
   const [loaded, setLoaded] = useState(false)
+
+  // Design Mode — a development-only visual layout editor. It's loaded via a
+  // dev-gated dynamic import() after first paint, so the entire editor (Toolbar,
+  // Overlay, Inspector, store + editor.css) is dead-code-eliminated from the
+  // production bundle: `import.meta.env.DEV` is statically false in prod, so the
+  // import() call is dropped and visitors never receive the editor at all.
+  const [Editor, setEditor] = useState(null)
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      import('./editor/VisualEditor').then((m) => setEditor(() => m.default))
+    }
+  }, [])
 
   useEffect(() => {
     // lerp is the smoothing factor: lower = smoother/floatier, higher = snappier.
@@ -45,6 +56,40 @@ export default function App() {
     return () => {
       gsap.ticker.remove(raf)
       l.destroy()
+    }
+  }, [])
+
+  // Production hardening for scroll-driven animation.
+  // Web fonts (@import) and images change element sizes AFTER first paint. That
+  // leaves framer-motion's useScroll (Cyborg's extending neck, About's pose
+  // crossfade) and GSAP's ScrollTrigger holding stale offsets that were measured
+  // against the unsettled layout. On a warm local load the shift is tiny; on a
+  // cold Vercel load the sections above shift enough that a scroll-driven element
+  // can be parked mid-animation before you ever scroll (e.g. Cyborg's neck shows
+  // up already stretched). Re-measure once the layout has actually settled: a
+  // window 'resize' makes framer recompute every scroll offset, and
+  // ScrollTrigger.refresh() does the same for GSAP.
+  useEffect(() => {
+    let done = false
+    const settle = () => {
+      window.dispatchEvent(new Event('resize'))
+      ScrollTrigger.refresh()
+    }
+    const settleOnce = () => {
+      if (done) return
+      done = true
+      settle()
+    }
+    document.fonts?.ready.then(settleOnce)
+    if (document.readyState === 'complete') settleOnce()
+    else window.addEventListener('load', settleOnce, { once: true })
+    // A couple of late passes catch slow-decoding art without a resize of its own.
+    const t1 = setTimeout(settle, 1200)
+    const t2 = setTimeout(settle, 2600)
+    return () => {
+      window.removeEventListener('load', settleOnce)
+      clearTimeout(t1)
+      clearTimeout(t2)
     }
   }, [])
 
@@ -82,37 +127,6 @@ export default function App() {
     return () => ctx.revert()
   }, [lenis, loaded])
 
-  // Full-screen panels keep their overflowing content in an inner `.panel-scroll`
-  // region. Lenis drives page smooth-scroll by hijacking the wheel, so it must
-  // step aside for that inner scroll — but ONLY while the panel actually
-  // overflows, otherwise the wheel would get trapped over a panel that has
-  // nothing to scroll. We flag overflowing regions with `data-lenis-prevent`
-  // (Lenis's own opt-out) and keep it in sync as the viewport / content changes.
-  // Native overscroll at the region's top/bottom edge still chains to the page,
-  // so scrolling never dead-ends. Touch is native already (syncTouch: false).
-  useEffect(() => {
-    const regions = Array.from(document.querySelectorAll('.panel-scroll'))
-    if (!regions.length) return
-    const sync = () => {
-      regions.forEach((el) => {
-        const overflowing = el.scrollHeight > el.clientHeight + 1
-        el.toggleAttribute('data-lenis-prevent', overflowing)
-      })
-    }
-    sync()
-    const ro = new ResizeObserver(sync)
-    regions.forEach((el) => {
-      ro.observe(el)
-      if (el.firstElementChild) ro.observe(el.firstElementChild)
-    })
-    window.addEventListener('resize', sync)
-    document.fonts?.ready.then(sync)
-    return () => {
-      ro.disconnect()
-      window.removeEventListener('resize', sync)
-    }
-  }, [lenis, loaded])
-
   return (
     <>
       {!loaded && <Preloader onDone={() => setLoaded(true)} />}
@@ -135,9 +149,8 @@ export default function App() {
         <FooterOutro lenis={lenis} />
       </main>
 
-      {/* Design Mode — visual layout editor. Renders nothing until toggled on;
-          the real site is completely unaffected while it's off. */}
-      <VisualEditor lenis={lenis} />
+      {/* Design Mode — development-only; excluded from the production bundle. */}
+      {import.meta.env.DEV && Editor && <Editor lenis={lenis} />}
     </>
   )
 }
@@ -214,7 +227,7 @@ function Preloader({ onDone }) {
         transition={{ repeat: Infinity, duration: 1.4 }}
         className="w-32 h-40 relative z-10"
       >
-        <Character id="robin" variant="boot" className="w-full h-full" />
+        <Character id="robin" variant="boot" priority alt="" className="w-full h-full" />
       </motion.div>
       <div className="relative z-10 mt-4 font-display text-tt-yellow text-3xl comic-shadow">ASSEMBLING THE TITANS…</div>
       <div className="relative z-10 mt-4 w-64 h-4 ink-border rounded-full overflow-hidden bg-black/40">

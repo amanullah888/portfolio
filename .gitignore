@@ -5,3 +5,6 @@ dist
 .vite
 
 .vercel
+
+# graphify knowledge-graph output (local tooling artifact)
+graphify-out

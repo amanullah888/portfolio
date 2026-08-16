@@ -231,13 +231,20 @@ export default function PowersCarousel() {
             onClick={() => goTo(i)}
             aria-label={`Go to ${p.power}`}
             aria-current={i === idx}
-            className="rounded-full border-2 border-black transition-all"
-            style={{
-              width: i === idx ? 30 : 12,
-              height: 12,
-              background: i === idx ? '#ffd21e' : 'rgba(255,255,255,0.35)',
-            }}
-          />
+            /* transparent 24px-tall hit area (WCAG target size) wrapping the
+               visible pill, so the dot stays small but is easy to tap */
+            className="grid place-items-center bg-transparent border-0 p-0 cursor-pointer"
+            style={{ minWidth: 24, height: 24 }}
+          >
+            <span
+              className="block rounded-full border-2 border-black transition-all"
+              style={{
+                width: i === idx ? 30 : 12,
+                height: 12,
+                background: i === idx ? '#ffd21e' : 'rgba(255,255,255,0.35)',
+              }}
+            />
+          </button>
         ))}
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useScroll, useTransform, useSpring, useMotionValue, useMotionTemplate } from 'framer-motion'
 import Character from './Character'
+import { PROCESSED } from '../data/assetManifest'
 
 /*
  * Cyborg's detachable-neck gag for the Journey section.
@@ -28,32 +29,22 @@ import Character from './Character'
  * PNG is missing.
  */
 
-function probeImage(src) {
-  return new Promise((resolve) => {
-    const img = new Image()
-    img.onload = () => resolve(true)
-    img.onerror = () => resolve(false)
-    img.src = src
-  })
-}
-
 export default function CyborgNeck({ sectionRef, stageRef, className = '', style }) {
   const boxRef = useRef(null)
   const [meta, setMeta] = useState(null)
 
-  // Require the geometry AND both split PNGs before committing to the two-part
+  // Require the geometry AND both split halves before committing to the two-part
   // rig; if anything is missing we fall back to the one-piece character below.
+  // Existence of the split art is read from the build-time manifest (no image
+  // download) — only the small geometry JSON is fetched.
   useEffect(() => {
     let alive = true
-    Promise.all([
-      fetch('/characters-processed/giant/cyborg-neck.json')
-        .then((r) => (r.ok ? r.json() : null))
-        .catch(() => null),
-      probeImage('/characters-processed/giant/cyborg-head.png'),
-      probeImage('/characters-processed/giant/cyborg-body.png'),
-    ]).then(([m, headOk, bodyOk]) => {
-      if (alive) setMeta(m && headOk && bodyOk ? m : null)
-    })
+    const haveArt = !!PROCESSED['giant/cyborg-head'] && !!PROCESSED['giant/cyborg-body']
+    if (!haveArt) return
+    fetch('/characters-processed/giant/cyborg-neck.json')
+      .then((r) => (r.ok ? r.json() : null))
+      .catch(() => null)
+      .then((m) => { if (alive) setMeta(m || null) })
     return () => { alive = false }
   }, [])
 

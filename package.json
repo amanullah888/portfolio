@@ -4,7 +4,9 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "gen:assets": "node scripts/gen_asset_manifest.mjs",
     "dev": "vite",
+    "prebuild": "node scripts/gen_asset_manifest.mjs",
     "build": "vite build",
     "preview": "vite preview --port 4173"
   },

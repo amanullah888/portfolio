@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
 import { Leader, Shifter, Machine, Star, Sorceress } from './Characters'
+import { PROCESSED, LEGACY } from '../data/assetManifest'
 
 /*
  * Swap-ready character.
@@ -14,103 +14,75 @@ import { Leader, Shifter, Machine, Star, Sorceress } from './Characters'
  *   - "badge"  — the corner mascot on project cards
  *   - "boot"   — the boot-loader icon (App.jsx)
  *
- * Renders /characters-processed/<variant>/<file> (WebP with a PNG fallback,
- * 2x srcset where available) the moment that file exists in /public. Falls
- * back to the original flat /characters/<file> if a processed variant
- * hasn't been generated for that id (e.g. still-unprocessed extras), then to
- * a hand-drawn SVG stand-in so the site never breaks with missing art.
- * See public/characters/README.md for filenames + specs.
+ * Which files exist for each id/variant is resolved from a build-time manifest
+ * (src/data/assetManifest.js, produced by scripts/gen_asset_manifest.mjs), so we
+ * render a <picture> with only the files that actually exist and let the BROWSER
+ * download exactly one format + size. (The old runtime approach probed every
+ * candidate URL with `new Image()`, which downloaded all four png/webp/@2x files
+ * per character just to test existence — the whole point of <picture> defeated,
+ * and megabytes wasted.) Falls back to the original flat /characters/<file> when
+ * a processed variant is missing, then to a hand-drawn SVG stand-in so the site
+ * never breaks with missing art.
+ *
+ * Pass `priority` for above-the-fold art (the hero) so it loads eagerly with
+ * high fetch priority; everything else lazy-loads as it scrolls into view.
  */
 const MAP = {
-  robin:    { file: 'robin.png',    alt: 'robin-hero.png',    Svg: Leader },
-  beastboy: { file: 'beastboy.png',                           Svg: Shifter },
-  cyborg:   { file: 'cyborg.png',                             Svg: Machine },
-  starfire: { file: 'starfire.png',                           Svg: Star },
-  raven:    { file: 'raven.png',                              Svg: Sorceress },
-  'cyborg-tech':  { file: 'cyborg-tech.png',  alt: 'cyborg.png',   Svg: Machine },
+  robin:    { file: 'robin.png',    alt: 'robin-hero.png', label: 'Robin',    Svg: Leader },
+  beastboy: { file: 'beastboy.png',                        label: 'Beast Boy', Svg: Shifter },
+  cyborg:   { file: 'cyborg.png',                          label: 'Cyborg',    Svg: Machine },
+  starfire: { file: 'starfire.png',                        label: 'Starfire',  Svg: Star },
+  raven:    { file: 'raven.png',                           label: 'Raven',     Svg: Sorceress },
+  'cyborg-tech':  { file: 'cyborg-tech.png',  alt: 'cyborg.png', label: 'Cyborg', Svg: Machine },
   // Split halves for the extending-neck gag (CyborgNeck) in the Journey section.
-  'cyborg-body':  { file: 'cyborg-body.png',                       Svg: Machine },
-  'cyborg-head':  { file: 'cyborg-head.png',                       Svg: Machine },
+  'cyborg-body':  { file: 'cyborg-body.png', label: 'Cyborg', Svg: Machine },
+  'cyborg-head':  { file: 'cyborg-head.png', label: 'Cyborg', Svg: Machine },
   // Beast Boy's shape-shift forms, stacked by BeastBoyStack in the Skills section.
-  'beastboy-cat':     { file: 'beastboy-cat.png',                  Svg: Shifter },
-  'beastboy-gorilla': { file: 'beastboy-gorilla.png',              Svg: Shifter },
-  'beastboy-lion':    { file: 'beastboy-lion.png',                 Svg: Shifter },
+  'beastboy-cat':     { file: 'beastboy-cat.png',     label: 'Beast Boy (cat)',     Svg: Shifter },
+  'beastboy-gorilla': { file: 'beastboy-gorilla.png', label: 'Beast Boy (gorilla)', Svg: Shifter },
+  'beastboy-lion':    { file: 'beastboy-lion.png',    label: 'Beast Boy (lion)',    Svg: Shifter },
   // About "serious mode" — prefers robin-serious.png, else the normal robin.png
-  'robin-serious': { file: 'robin-serious.png', alt: 'robin.png', Svg: Leader },
-  team:     { file: 'team.png',                              Svg: null },
+  'robin-serious': { file: 'robin-serious.png', alt: 'robin.png', label: 'Robin', Svg: Leader },
+  team:     { file: 'team.png', label: 'The Titans', Svg: null },
 }
 
-// Cache probe results so we don't re-request the same image on every mount.
-const probeCache = new Map()
-
-function probe(src) {
-  if (probeCache.has(src)) return probeCache.get(src)
-  const p = new Promise((resolve) => {
-    const img = new Image()
-    img.onload = () => resolve(src)
-    img.onerror = () => resolve(null)
-    img.src = src
-  })
-  probeCache.set(src, p)
-  return p
-}
-
-// Build the {png1x, png2x, webp1x, webp2x} set for a processed variant, or
-// null if the 1x PNG (the required baseline) doesn't exist for it.
-async function resolveProcessed(variant, stem) {
-  const dir = `/characters-processed/${variant}`
-  const png1x = `${dir}/${stem}.png`
-  const ok = await probe(png1x)
-  if (!ok) return null
-  const [png2xOk, webp1xOk, webp2xOk] = await Promise.all([
-    probe(`${dir}/${stem}@2x.png`),
-    probe(`${dir}/${stem}.webp`),
-    probe(`${dir}/${stem}@2x.webp`),
-  ])
-  return {
-    png1x,
-    png2x: png2xOk ? `${dir}/${stem}@2x.png` : null,
-    webp1x: webp1xOk ? `${dir}/${stem}.webp` : null,
-    webp2x: webp2xOk ? `${dir}/${stem}@2x.webp` : null,
+// Resolve the best available asset set for an id/variant from the manifest.
+// Synchronous — no network probing.
+function resolveAsset(conf, variant) {
+  const candidates = [conf.file, conf.alt].filter(Boolean)
+  for (const f of candidates) {
+    const stem = f.replace(/\.png$/i, '')
+    const p = PROCESSED[`${variant}/${stem}`]
+    if (p) return { kind: 'processed', ...p }
   }
+  for (const f of candidates) {
+    if (LEGACY[f]) return { kind: 'legacy', src: LEGACY[f] }
+  }
+  return null
 }
 
-export default function Character({ id, variant = 'giant', className = '', style, alt = '', float = false, ...rest }) {
+export default function Character({
+  id,
+  variant = 'giant',
+  className = '',
+  style,
+  alt,
+  float = false,
+  priority = false,
+  ...rest
+}) {
   const conf = MAP[id] || MAP.robin
-  const [resolved, setResolved] = useState(null) // { kind: 'processed', ...} | { kind: 'legacy', src }
-
-  useEffect(() => {
-    let alive = true
-    const candidates = [conf.file, conf.alt].filter(Boolean)
-    ;(async () => {
-      for (const f of candidates) {
-        const stem = f.replace(/\.png$/i, '')
-        // eslint-disable-next-line no-await-in-loop
-        const processed = await resolveProcessed(variant, stem)
-        if (processed && alive) {
-          setResolved({ kind: 'processed', ...processed })
-          return
-        }
-      }
-      // Legacy fallback: original flat /characters/<file>, for ids/variants
-      // that haven't been through the size-normalization pass yet.
-      for (const f of candidates) {
-        const legacy = `/characters/${f}`
-        // eslint-disable-next-line no-await-in-loop
-        const ok = await probe(legacy)
-        if (ok && alive) {
-          setResolved({ kind: 'legacy', src: legacy })
-          return
-        }
-      }
-    })()
-    return () => { alive = false }
-  }, [conf.file, conf.alt, variant])
+  const resolved = resolveAsset(conf, variant)
 
   if (resolved) {
     const imgProps = {
-      alt: alt || id,
+      alt: alt ?? conf.label ?? id,
       draggable: false,
+      loading: priority ? 'eager' : 'lazy',
+      decoding: 'async',
+      // lowercase attribute name: React 18 passes it straight through to the DOM
+      // (the camelCase `fetchPriority` prop is only mapped in React 19).
+      ...(priority ? { fetchpriority: 'high' } : {}),
       className: `${className} ${float ? 'floaty' : ''} select-none`,
       style: { objectFit: 'contain', width: '100%', height: '100%', ...style },
       ...rest,

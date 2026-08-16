@@ -148,6 +148,10 @@ function ProjectCard({ p, n, dragRef }) {
   const guardClick = (e) => {
     if (dragRef.current?.moved) e.preventDefault()
   }
+  // Only treat a project as linkable when it has a real destination. A bare '#'
+  // (or empty) link is not shown as an "open" button — a prominent launch arrow
+  // that goes nowhere reads as broken, so we hide the affordance instead.
+  const hasLink = p.link && p.link !== '#'
   return (
     <motion.article
       data-card
@@ -196,21 +200,32 @@ function ProjectCard({ p, n, dragRef }) {
           ))}
         </div>
 
-        {/* launch arrow */}
-        <div className="mt-auto pt-4 flex justify-end">
-          <a
-            href={p.link}
-            onClick={guardClick}
-            target={p.link !== '#' ? '_blank' : undefined}
-            rel="noreferrer"
-            aria-label={`Open ${p.name}`}
-            className="btn-comic grid place-items-center h-11 w-11 rounded-xl"
-            style={{ background: p.accent, color: '#0b0b12' }}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M7 17 17 7M9 7h8v8" />
-            </svg>
-          </a>
+        {/* launch arrow — only when the project actually links somewhere.
+            Otherwise show a quiet "case file" status so the card doesn't sprout
+            a button that leads nowhere. */}
+        <div className="mt-auto pt-4 flex justify-end items-center">
+          {hasLink ? (
+            <a
+              href={p.link}
+              onClick={guardClick}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`Open ${p.name}`}
+              className="btn-comic grid place-items-center h-11 w-11 rounded-xl"
+              style={{ background: p.accent, color: '#0b0b12' }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M7 17 17 7M9 7h8v8" />
+              </svg>
+            </a>
+          ) : (
+            <span
+              className="font-display text-xs tracking-widest uppercase px-3 py-1.5 rounded-full"
+              style={{ color: p.accent, background: 'rgba(255,255,255,0.06)', border: '2px solid rgba(255,255,255,0.12)' }}
+            >
+              Case file
+            </span>
+          )}
         </div>
       </div>
     </motion.article>

@@ -203,40 +203,38 @@ body {
        showing. On desktop svh == vh == dvh, so nothing is lost there. */
 .panel {
   position: relative;
-  height: 100vh;        /* legacy fallback for browsers without svh */
-  height: 100svh;
-  min-height: 100svh;
-  max-height: 100svh;   /* hard cap: a panel is never taller than the viewport */
+  min-height: 100svh;   /* at least one screen; grows if content needs more */
   display: flex;
   flex-direction: column;
-  overflow: hidden;     /* the panel frame itself never scrolls */
+  overflow: hidden;     /* clip decoration bleed (panel grows to fit content, so
+                           nothing real is ever clipped vertically) */
+}
+/* Fallback for browsers without svh: a sensible viewport min-height. */
+@supports not (height: 100svh) {
+  .panel { min-height: 100vh; }
 }
 
-/* The one scrollable region inside a panel. It fills the leftover space and
-   only shows a scrollbar when its content overflows. `min-height:0` is what
-   lets a flex child shrink below its content height so it can actually scroll.
-   Safe-area padding keeps content clear of the notch / home indicator. */
+/* The content region inside a panel. Panels now grow with their content (see
+   `.panel` above) and the whole page scrolls as one, so this region no longer
+   scrolls on its own — that avoids a second scrollbar sitting next to the page
+   scrollbar on shorter viewports. It just centres content that fits and lets
+   taller content extend the panel. Safe-area padding keeps content clear of the
+   notch / home indicator. */
 .panel-scroll {
   flex: 1 1 auto;
   min-height: 0;
   width: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  -webkit-overflow-scrolling: touch;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.28) transparent;
 }
-.panel-scroll::-webkit-scrollbar { width: 10px; }
-.panel-scroll::-webkit-scrollbar-track { background: transparent; }
-.panel-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  border: 3px solid transparent;
-  background-clip: padding-box;
+/* The MENU control is a fixed notch hanging from the top-centre of every screen
+   (~48px tall). Reserve clearance at the top of each panel's content so a
+   section that fills/overflows the viewport can't tuck its heading or tag under
+   the notch. The hero owns its own top spacing, so it's excluded. */
+.panel:not(#hero) > .panel-scroll {
+  padding-top: calc(env(safe-area-inset-top, 0px) + 3.5rem);
 }
 
 /* The content wrapper inside `.panel-scroll`. `margin:auto` centres it in the
@@ -284,6 +282,16 @@ body {
   -webkit-text-stroke: 4px #000;
   paint-order: stroke fill;
   text-shadow: 8px 8px 0 rgba(0,0,0,0.9);
+}
+
+/* On phones the 8px hard shadow + 4px stroke is heavy enough to look doubled and
+   to bump the edge of narrow containers. Trim both a touch so big headlines stay
+   crisp and fully on-screen. */
+@media (max-width: 640px) {
+  .mega {
+    -webkit-text-stroke-width: 3px;
+    text-shadow: 5px 5px 0 rgba(0,0,0,0.9);
+  }
 }
 
 /* Floating drift for large characters (bigger amplitude than .floaty) */
@@ -339,5 +347,6 @@ body {
 ::-webkit-scrollbar-thumb { background: var(--color-tt-purple); border: 3px solid #0b0b12; border-radius: 20px; }
 
 @media (prefers-reduced-motion: reduce) {
-  .floaty, .wobble, .pop-blink, .spin-slow, .spin-slower, .flicker, .shake { animation: none !important; }
+  .floaty, .wobble, .pop-blink, .spin-slow, .spin-slower, .flicker, .shake,
+  .tower-glow, .drift, .pan-slow { animation: none !important; }
 }
