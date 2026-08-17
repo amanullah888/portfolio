@@ -57,13 +57,17 @@ export default function Experience() {
              keeps the head at the top; the stage is tall (90svh) so the body has
              the full timeline to travel down without being clipped. */}
         <div className="hidden lg:block order-1 lg:order-2">
-          <div ref={stageRef} className="sticky top-[6vh] h-[90svh] flex items-start justify-center">
+          {/* Stage height sets how far the body descends (= stretch length). Kept
+              moderate so the neck reads as an attached, stretchy neck rather than a
+              floating head far from the body; the box % is bumped to match so the
+              character stays the same size. */}
+          <div ref={stageRef} className="sticky top-[6vh] h-[73svh] flex items-start justify-center">
             <div className="relative h-full w-full flex items-start justify-center">
               <CyborgNeck
                 sectionRef={sectionRef}
                 stageRef={stageRef}
                 className="char-glow"
-                style={{ height: '38%' }}
+                style={{ height: '47%' }}
               />
               <div className="absolute top-[4%] right-0 z-30">
                 <SpeechBubble tail="right" color="#00e0ff" editId="experience__bubble" label="Cyborg bubble">

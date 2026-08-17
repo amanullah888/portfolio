@@ -89,7 +89,7 @@ body {
   background-image:
     repeating-conic-gradient(from 0deg at var(--burst-x) var(--burst-y),
       rgba(0,0,0,0) 0deg 2.1deg,
-      rgba(0,0,0,0.9) 2.1deg 3.2deg);
+      rgba(0,0,0,0.28) 2.1deg 3.2deg);
   -webkit-mask-image: radial-gradient(120% 120% at var(--burst-x) var(--burst-y), transparent 8%, #000 42%);
           mask-image: radial-gradient(120% 120% at var(--burst-x) var(--burst-y), transparent 8%, #000 42%);
 }

@@ -115,7 +115,10 @@ export default function CyborgNeck({ sectionRef, stageRef, className = '', style
         className="absolute z-[1] pointer-events-none"
         style={{
           left: `${meta.tubeCenterXPct * 100}%`,
-          width: `${meta.tubeWidthPct * 100}%`,
+          // Widen the neck past the raw metadata so the stretched tube reads as a
+          // solid connected neck (head visibly attached to the body) instead of a
+          // thin wire that makes the head look detached.
+          width: `${meta.tubeWidthPct * 100 * 1.45}%`,
           top: `${meta.tubeTopRestYPct * 100}%`,
           height: tubeHeight,
           x: '-50%',
