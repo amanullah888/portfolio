@@ -48,17 +48,28 @@ export default function CyborgNeck({ sectionRef, stageRef, className = '', style
     return () => { alive = false }
   }, [])
 
-  // 'start start' -> 'end end' makes progress run 0..1 over exactly the span
-  // where the section scrolls through the viewport, so the neck maps 1:1 onto
-  // the timeline scroll.
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start start', 'end end'],
+  // Progress runs 0..1 over exactly the span where the section scrolls through
+  // the viewport ('start start' -> 'end end'), so the neck maps 1:1 onto the
+  // timeline scroll.
+  //
+  // We compute it from the section's LIVE bounding rect on every scroll frame
+  // rather than framer's useScroll({ target }). That built-in caches the target's
+  // document offset and only refreshes it via a ResizeObserver on the target
+  // itself — so when the sections ABOVE this one grow after first paint (web
+  // fonts, images, lazily-sized panels), the cached offset goes stale and the
+  // neck reads as partly stretched before the section has even reached the top
+  // (the "pre-stretched on production" bug). Reading getBoundingClientRect().top
+  // live is immune to that: it is always the true current position.
+  const { scrollY } = useScroll()
+  const raw = useTransform(scrollY, () => {
+    const section = sectionRef?.current
+    if (!section) return 0
+    const rect = section.getBoundingClientRect()
+    const total = rect.height - window.innerHeight // scrollable span within the section
+    if (total <= 0) return 0
+    // rect.top > 0 => section still below the viewport top => clamped to 0 (rest).
+    return Math.min(1, Math.max(0, -rect.top / total))
   })
-
-  // Monotonic and clamped: the neck only ever grows as you scroll, reaching full
-  // extension at the very bottom. It never cycles back.
-  const raw = useTransform(scrollYProgress, [0, 1], [0, 1], { clamp: true })
   // Critically damped: damping 24 >= 2*sqrt(stiffness*mass) = 2*sqrt(110*0.4) =
   // 13.3, so the spring cannot overshoot past full extension and snap back.
   const p = useSpring(raw, { stiffness: 110, damping: 24, mass: 0.4 })
