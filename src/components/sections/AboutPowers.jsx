@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react'
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import Character from '../Character'
-import PowersCarousel from '../PowersCarousel'
 import { Reveal, SpeechBubble, PanelTag } from '../ui'
 import Particles from '../Particles'
 import { ABOUT, PROFILE } from '../../data/content'
@@ -186,23 +185,6 @@ export default function AboutPowers() {
         </div>
       </div>
 
-      {/* ===== POWERS (full-bleed) ===== */}
-      {/* Pulled OUT of the two-column grid above so the carousel spans the whole
-          container instead of being crammed into the 1.2fr text column — that
-          left the wide right half (Robin's column) empty during the powers scroll. */}
-      <div className="relative z-10 mx-auto w-[min(1320px,92vw)] mt-12">
-        <div className="mb-6">
-          <PanelTag color="#ffd21e">EVERY TITAN HAS A POWER…</PanelTag>
-          <h2 className="mt-4 mega text-white" style={{ fontSize: 'clamp(3rem,8vw,6.5rem)' }}>
-            MY SUPERPOWERS
-          </h2>
-          <p className="mt-4 text-white/85 max-w-lg" style={{ fontSize: 'clamp(1.1rem,1.5vw,1.4rem)' }}>
-            Not "skills." <b>Powers.</b> Here's what the new Titan brings to the fight.
-          </p>
-        </div>
-
-        <PowersCarousel />
-      </div>
     </section>
   )
 }
