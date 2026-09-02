@@ -92,7 +92,7 @@ export default function Projects() {
             MY PROJECTS
           </h2>
           <p className="mt-2 text-white/85" style={{ fontSize: 'clamp(1rem,1.4vw,1.25rem)' }}>
-            A squad of builds, experiments and automations. <span className="hidden sm:inline">Swipe to see more.</span>
+            Real systems, AI engines and shipped products. <span className="hidden sm:inline">Swipe through the case files.</span>
           </p>
         </div>
 
@@ -148,10 +148,12 @@ function ProjectCard({ p, n, dragRef }) {
   const guardClick = (e) => {
     if (dragRef.current?.moved) e.preventDefault()
   }
-  // Only treat a project as linkable when it has a real destination. A bare '#'
-  // (or empty) link is not shown as an "open" button — a prominent launch arrow
-  // that goes nowhere reads as broken, so we hide the affordance instead.
-  const hasLink = p.link && p.link !== '#'
+  // A project can carry a GitHub `repo` and/or a `live` demo. We render only the
+  // buttons that point somewhere real; a project with neither (a private repo or
+  // work-in-progress) shows a quiet "case file" chip instead of a dead button.
+  const hasRepo = p.repo && p.repo !== '#'
+  const hasLive = p.live && p.live !== '#'
+  const hasAny = hasRepo || hasLive
   return (
     <motion.article
       data-card
@@ -200,31 +202,50 @@ function ProjectCard({ p, n, dragRef }) {
           ))}
         </div>
 
-        {/* launch arrow — only when the project actually links somewhere.
-            Otherwise show a quiet "case file" status so the card doesn't sprout
-            a button that leads nowhere. */}
-        <div className="mt-auto pt-4 flex justify-end items-center">
-          {hasLink ? (
+        {/* actions — render only the links that point somewhere real. Live demo
+            gets the loud accent button; source gets a dark "Code" button. A card
+            with neither (private / WIP) shows a quiet "case file" chip instead of
+            sprouting a button that leads nowhere. */}
+        <div className="mt-auto pt-4 flex flex-wrap justify-end items-center gap-2">
+          {!hasAny && (
+            <span
+              className="mr-auto font-display text-xs tracking-widest uppercase px-3 py-1.5 rounded-full"
+              style={{ color: p.accent, background: 'rgba(255,255,255,0.06)', border: '2px solid rgba(255,255,255,0.12)' }}
+            >
+              Case file · Private
+            </span>
+          )}
+          {hasLive && (
             <a
-              href={p.link}
+              href={p.live}
               onClick={guardClick}
               target="_blank"
               rel="noreferrer"
-              aria-label={`Open ${p.name}`}
-              className="btn-comic grid place-items-center h-11 w-11 rounded-xl"
+              aria-label={`Open the live demo of ${p.name}`}
+              className="btn-comic inline-flex items-center gap-1.5 h-10 px-3.5 rounded-xl text-sm"
               style={{ background: p.accent, color: '#0b0b12' }}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M7 17 17 7M9 7h8v8" />
               </svg>
+              Live
             </a>
-          ) : (
-            <span
-              className="font-display text-xs tracking-widest uppercase px-3 py-1.5 rounded-full"
-              style={{ color: p.accent, background: 'rgba(255,255,255,0.06)', border: '2px solid rgba(255,255,255,0.12)' }}
+          )}
+          {hasRepo && (
+            <a
+              href={p.repo}
+              onClick={guardClick}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`View the source of ${p.name} on GitHub`}
+              className="btn-comic inline-flex items-center gap-1.5 h-10 px-3.5 rounded-xl text-sm"
+              style={{ background: '#0b0620', color: '#fff' }}
             >
-              Case file
-            </span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.49-1.11-1.49-.91-.64.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.27 2.75 1.05a9.36 9.36 0 0 1 2.5-.35c.85 0 1.71.12 2.5.35 1.91-1.32 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z" />
+              </svg>
+              Code
+            </a>
           )}
         </div>
       </div>

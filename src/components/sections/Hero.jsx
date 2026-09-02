@@ -75,7 +75,7 @@ export default function Hero({ lenis }) {
             animate={{ opacity: 1, scale: 1, rotate: -2 }}
             transition={{ type: 'spring', stiffness: 120, damping: 10, delay: 0.4 }}
             className="mega hero-name text-white mt-1"
-            style={{ fontSize: 'clamp(2.9rem,7.5vw,7rem)' }}
+            style={{ fontSize: 'clamp(2.4rem,10.5vw,7rem)' }}
           >
             AMAN<br />ULLAH<br />KAZI
           </motion.h1>

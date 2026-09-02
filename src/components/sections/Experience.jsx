@@ -42,7 +42,7 @@ export default function Experience() {
             style={{ background: 'linear-gradient(#00e0ff,#7b2ff7)' }} />
           <div className="space-y-8">
             {EXPERIENCE.map((e, i) => (
-              <LogCard key={e.year} e={e} i={i} />
+              <LogCard key={`${e.year}-${e.title}`} e={e} i={i} />
             ))}
           </div>
         </div>
