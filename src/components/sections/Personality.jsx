@@ -1,14 +1,16 @@
 import { motion } from 'framer-motion'
 import Character from '../Character'
-import { Reveal, PanelTag, SpeechBubble } from '../ui'
+import { Reveal, PanelTag, SpeechBubble, Lines } from '../ui'
 import Particles from '../Particles'
-import { PERSONALITY } from '../../data/content'
+import { useContent } from '../../data/contentStore'
 
 // accent palettes reused for the trait pills and the fact icon tiles
 const TRAIT_COLORS = ['#ffd21e', '#4fd84f', '#1a8cff', '#7b2ff7', '#ff3ea5', '#ffffff']
 const FACT_COLORS = ['#ff3ea5', '#1a8cff', '#4fd84f', '#ffd21e', '#ff3ea5']
 
 export default function Personality() {
+  const { personality } = useContent()
+  const words = personality.subtitleWords || []
   return (
     <section id="personality" className="panel overflow-hidden vignette"
       style={{ background: [
@@ -30,16 +32,18 @@ export default function Personality() {
         data-editable-id="personality__starfire" data-editable-label="Starfire (character)">
         <Character id="starfire" variant="giant" className="h-full w-auto" style={{ width: 'auto', height: '100%' }} />
       </div>
-      <div className="absolute top-[14%] left-[15%] z-30 hidden lg:block">
+      {/* Positioned to sit just above Starfire's head so the bubble reads as her
+          speaking — not floating disconnected near the top of the panel. */}
+      <div className="absolute top-[33%] left-[13%] z-30 hidden lg:block">
         <SpeechBubble tail="left" color="#fff" editId="personality__bubble" label="Starfire bubble">
-          <span className="text-sm">Ooh! Please,<br />enjoy the <b>fun facts!</b></span>
+          <span className="text-sm"><Lines text={personality.bubble} /></span>
         </SpeechBubble>
       </div>
 
       {/* section tag pinned to the top-right corner, like the reference */}
       <div className="absolute top-6 right-6 z-30 hidden md:block"
         data-editable-id="personality__tag" data-editable-label="Softer side tag">
-        <PanelTag color="#ffd21e">THE SOFTER SIDE</PanelTag>
+        <PanelTag color="#ffd21e">{personality.tag}</PanelTag>
       </div>
 
       <div className="panel-scroll">
@@ -50,13 +54,13 @@ export default function Personality() {
           <div className="relative inline-block">
             <div className="absolute -inset-x-8 -inset-y-4 -z-10 rounded-[45%] bg-black/45 blur-2xl" aria-hidden />
             <h2 className="mega text-white" style={{ fontSize: 'clamp(2.6rem,7vw,6rem)' }}>
-              FUN FACTS ABOUT ME
+              {personality.heading}
             </h2>
           </div>
           <p className="mt-4 font-display text-xl md:text-2xl text-white/90 tracking-wide">
-            A mix of <span style={{ color: '#4dc3ff' }}>skills</span>,{' '}
-            <span style={{ color: '#ff3ea5' }}>quirks</span>, and{' '}
-            <span style={{ color: '#ffd21e' }}>superpowers</span>.
+            A mix of <span style={{ color: '#4dc3ff' }}>{words[0]}</span>,{' '}
+            <span style={{ color: '#ff3ea5' }}>{words[1]}</span>, and{' '}
+            <span style={{ color: '#ffd21e' }}>{words[2]}</span>.
           </p>
         </div>
 
@@ -67,10 +71,10 @@ export default function Personality() {
               style={{ background: 'rgba(58,18,74,0.72)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}>
               <div className="inline-block font-display text-lg md:text-xl px-5 py-2 mb-5 ink-border rounded-full"
                 style={{ background: '#ff3ea5', color: '#0b0b12' }}>
-                WHAT I BRING TO THE TEAM
+                {personality.traitsTitle}
               </div>
               <div className="grid grid-cols-2 gap-3">
-                {PERSONALITY.traits.map((t, i) => (
+                {personality.traits.map((t, i) => (
                   <motion.span
                     key={t}
                     whileHover={{ scale: 1.06, rotate: i % 2 ? 2 : -2 }}
@@ -88,7 +92,7 @@ export default function Personality() {
 
           {/* fun facts list */}
           <div className="space-y-3">
-            {PERSONALITY.funFacts.map((f, i) => (
+            {personality.funFacts.map((f, i) => (
               <Reveal key={f.t} delay={i * 0.06}>
                 <motion.div
                   whileHover={{ x: 8 }}

@@ -14,22 +14,26 @@ import Personality from './components/sections/Personality'
 import Hire from './components/sections/Hire'
 import FooterOutro from './components/sections/FooterOutro'
 import Character from './components/Character'
+import { useContent } from './data/contentStore'
 
 gsap.registerPlugin(ScrollTrigger)
 
 export default function App() {
+  const c = useContent()
   const [lenis, setLenis] = useState(null)
   const [loaded, setLoaded] = useState(false)
 
-  // Design Mode — a development-only visual layout editor. It's loaded via a
-  // dev-gated dynamic import() after first paint, so the entire editor (Toolbar,
-  // Overlay, Inspector, store + editor.css) is dead-code-eliminated from the
-  // production bundle: `import.meta.env.DEV` is statically false in prod, so the
-  // import() call is dropped and visitors never receive the editor at all.
+  // Design Mode + Content Mode — development-only editors. Both are loaded via a
+  // dev-gated dynamic import() after first paint, so the entire editor code is
+  // dead-code-eliminated from the production bundle: `import.meta.env.DEV` is
+  // statically false in prod, so the import() calls are dropped and visitors
+  // never receive the editors at all.
   const [Editor, setEditor] = useState(null)
+  const [ContentEd, setContentEd] = useState(null)
   useEffect(() => {
     if (import.meta.env.DEV) {
       import('./editor/VisualEditor').then((m) => setEditor(() => m.default))
+      import('./editor/ContentEditor').then((m) => setContentEd(() => m.default))
     }
   }, [])
 
@@ -135,22 +139,23 @@ export default function App() {
 
       <main className={loaded ? '' : 'pointer-events-none'}>
         <Hero lenis={lenis} />
-        <Divider word="WHOOSH!" color="#ffd21e" from="#071a3d" to="#3a0d16" />
+        <Divider word={c.dividers.afterHero} color="#ffd21e" from="#071a3d" to="#3a0d16" />
         <AboutPowers />
         <Shift />
-        <Divider word="BOOT UP!" color="#00e0ff" from="#0b3d1f" to="#062b3a" />
+        <Divider word={c.dividers.afterAbout} color="#00e0ff" from="#0b3d1f" to="#062b3a" />
         <Experience />
-        <Divider word="BAM!" color="#7b2ff7" from="#041018" to="#160a2e" />
+        <Divider word={c.dividers.afterSkills} color="#7b2ff7" from="#041018" to="#160a2e" />
         <Projects />
-        <Divider word="SPARKLE!" color="#ffd21e" from="#1a0740" to="#c73da0" />
+        <Divider word={c.dividers.afterProjects} color="#ffd21e" from="#1a0740" to="#c73da0" />
         <Personality />
-        <Divider word="ZAP!" color="#c89bff" from="#3d1150" to="#3a0a6b" />
+        <Divider word={c.dividers.afterExperience} color="#c89bff" from="#3d1150" to="#3a0a6b" />
         <Hire />
         <FooterOutro lenis={lenis} />
       </main>
 
-      {/* Design Mode — development-only; excluded from the production bundle. */}
+      {/* Development-only editors — excluded from the production bundle. */}
       {import.meta.env.DEV && Editor && <Editor lenis={lenis} />}
+      {import.meta.env.DEV && ContentEd && <ContentEd />}
     </>
   )
 }
@@ -181,6 +186,7 @@ function Divider({ word, color, from, to }) {
 
 /* Titans Tower boot-up preloader */
 function Preloader({ onDone }) {
+  const c = useContent()
   const [pct, setPct] = useState(0)
   const [leaving, setLeaving] = useState(false)
   const done = useRef(false)
@@ -229,7 +235,7 @@ function Preloader({ onDone }) {
       >
         <Character id="robin" variant="boot" priority alt="" className="w-full h-full" />
       </motion.div>
-      <div className="relative z-10 mt-4 font-display text-tt-yellow text-3xl comic-shadow">ASSEMBLING THE TITANS…</div>
+      <div className="relative z-10 mt-4 font-display text-tt-yellow text-3xl comic-shadow">{c.preloader.line}</div>
       <div className="relative z-10 mt-4 w-64 h-4 ink-border rounded-full overflow-hidden bg-black/40">
         <div className="h-full" style={{ width: `${pct}%`, background: 'linear-gradient(90deg,#ffd21e,#ff3ea5,#4fd84f)' }} />
       </div>

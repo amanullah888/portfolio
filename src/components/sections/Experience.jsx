@@ -1,10 +1,11 @@
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 import CyborgNeck from '../CyborgNeck'
-import { SpeechBubble, PanelTag } from '../ui'
-import { EXPERIENCE } from '../../data/content'
+import { SpeechBubble, PanelTag, Lines } from '../ui'
+import { useContent } from '../../data/contentStore'
 
 export default function Experience() {
+  const { experience } = useContent()
   const sectionRef = useRef(null)
   const stageRef = useRef(null)
   // NOTE: no `overflow-hidden` on the <section> itself — that would make it the
@@ -29,11 +30,11 @@ export default function Experience() {
 
         <div className="order-2 lg:order-1">
         <div className="mb-12">
-          <PanelTag color="#00e0ff">SYSTEM: TITANS COMMAND CENTER</PanelTag>
+          <PanelTag color="#00e0ff">{experience.tag}</PanelTag>
           <h2 className="mt-4 mega text-white" style={{ fontSize: 'clamp(3rem,8vw,6.5rem)' }}>
-            MY JOURNEY
+            {experience.heading}
           </h2>
-          <p className="mt-2 font-mono text-cyan-300/80 text-base flicker">&gt; installing experience modules...</p>
+          <p className="mt-2 font-mono text-cyan-300/80 text-base flicker">{experience.terminalLine}</p>
         </div>
 
         <div className="relative pl-6 md:pl-10">
@@ -41,8 +42,8 @@ export default function Experience() {
           <div className="absolute left-2 md:left-4 top-2 bottom-2 w-1.5 rounded-full"
             style={{ background: 'linear-gradient(#00e0ff,#7b2ff7)' }} />
           <div className="space-y-8">
-            {EXPERIENCE.map((e, i) => (
-              <LogCard key={`${e.year}-${e.title}`} e={e} i={i} />
+            {experience.items.map((e, i) => (
+              <LogCard key={`${e.year}-${e.title}-${i}`} e={e} i={i} labels={experience} />
             ))}
           </div>
         </div>
@@ -71,7 +72,7 @@ export default function Experience() {
               />
               <div className="absolute top-[4%] right-0 z-30">
                 <SpeechBubble tail="right" color="#00e0ff" editId="experience__bubble" label="Cyborg bubble">
-                  <span className="text-sm">This list is<br />so <b>long…</b></span>
+                  <span className="text-sm"><Lines text={experience.bubble} /></span>
                 </SpeechBubble>
               </div>
             </div>
@@ -82,7 +83,7 @@ export default function Experience() {
   )
 }
 
-function LogCard({ e, i }) {
+function LogCard({ e, i, labels }) {
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-20%' })
 
@@ -116,7 +117,7 @@ function LogCard({ e, i }) {
             <div className="font-mono text-xs text-cyan-200/70">{e.org}</div>
           </div>
           <div className="text-right shrink-0">
-            <div className="font-mono text-[10px] text-cyan-200/70">POWER LEVEL</div>
+            <div className="font-mono text-[10px] text-cyan-200/70">{labels.powerLevelLabel}</div>
             <div className="font-display text-2xl text-tt-yellow">{e.xp}%</div>
           </div>
         </div>
@@ -126,7 +127,7 @@ function LogCard({ e, i }) {
         {/* install bar */}
         <div className="mt-4">
           <div className="font-mono text-[11px] text-cyan-200/80 mb-1">
-            {inView ? 'STATUS: EXPERIENCE UPDATED ✓' : 'STATUS: installing...'}
+            {inView ? labels.statusDone : labels.statusInstalling}
           </div>
           <div className="h-3 rounded-full bg-black/50 ink-border overflow-hidden" style={{ boxShadow: 'none', border: '2px solid #000' }}>
             <motion.div

@@ -1,8 +1,8 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import Character from '../Character'
-import { Reveal, PanelTag, SpeechBubble, ComicBurst } from '../ui'
-import { PROJECTS } from '../../data/content'
+import { Reveal, PanelTag, SpeechBubble, ComicBurst, Lines } from '../ui'
+import { useContent } from '../../data/contentStore'
 
 /* ---------------------------------------------------------------------------
    Projects — "The team shows off"
@@ -13,6 +13,7 @@ import { PROJECTS } from '../../data/content'
 --------------------------------------------------------------------------- */
 
 export default function Projects() {
+  const { projects } = useContent()
   const scroller = useRef(null)
   const [atStart, setAtStart] = useState(true)
   const [atEnd, setAtEnd] = useState(false)
@@ -68,31 +69,31 @@ export default function Projects() {
       <div className="absolute inset-0 halftone-light opacity-25" />
 
       {/* ---- floating comic decorations (desktop only, non-interactive) ---- */}
-      <ComicBurst word="BAM!" color="#7ec8ff"
+      <ComicBurst word={projects.burst1} color="#7ec8ff"
         className="absolute top-[16%] left-[3%] z-[3] hidden xl:block drift pointer-events-none" />
       <div className="absolute top-[15%] right-[3%] z-[3] hidden xl:block floaty pointer-events-none">
         <SpeechBubble tail="right" color="#fff">
-          <span className="text-sm font-display tracking-wide">BUILT WITH<br />CODE &amp; CAFFEINE!</span>
+          <span className="text-sm font-display tracking-wide"><Lines text={projects.bubble1} /></span>
         </SpeechBubble>
       </div>
       <div className="absolute bottom-[10%] left-[4%] z-[3] hidden xl:block wobble pointer-events-none">
         <SpeechBubble tail="bottom-left" color="#fff">
-          <span className="text-sm font-display tracking-wide">IDEAS TODAY,<br />IMPACT TOMORROW.</span>
+          <span className="text-sm font-display tracking-wide"><Lines text={projects.bubble2} /></span>
         </SpeechBubble>
       </div>
-      <ComicBurst word="ALWAYS BUILDING!" color="#ffd21e" size="clamp(1.5rem,2.6vw,2.4rem)"
+      <ComicBurst word={projects.burst2} color="#ffd21e" size="clamp(1.5rem,2.6vw,2.4rem)"
         className="absolute bottom-[3%] right-[3%] z-[3] hidden xl:block pop-blink pointer-events-none" />
 
       <div className="panel-scroll">
       <div className="panel-inner relative z-10 mx-auto w-[min(1320px,94vw)] py-6 md:py-8">
         {/* ---- heading ---- */}
         <div className="text-center mb-4 md:mb-6">
-          <PanelTag color="#7b2ff7">THE TEAM SHOWS OFF</PanelTag>
+          <PanelTag color="#7b2ff7">{projects.tag}</PanelTag>
           <h2 className="mt-3 mega text-white" style={{ fontSize: 'clamp(2.8rem,7.5vw,5.6rem)' }}>
-            MY PROJECTS
+            {projects.heading}
           </h2>
           <p className="mt-2 text-white/85" style={{ fontSize: 'clamp(1rem,1.4vw,1.25rem)' }}>
-            Real systems, AI engines and shipped products. <span className="hidden sm:inline">Swipe through the case files.</span>
+            {projects.subtitleA} <span className="hidden sm:inline">{projects.subtitleB}</span>
           </p>
         </div>
 
@@ -118,10 +119,10 @@ export default function Projects() {
             className="no-scrollbar flex gap-6 overflow-x-auto snap-x snap-mandatory pb-4 pt-2 px-1 cursor-grab active:cursor-grabbing"
             style={{ scrollBehavior: 'smooth', touchAction: 'pan-y' }}
           >
-            {PROJECTS.map((p, i) => (
-              <ProjectCard key={p.name} p={p} n={i + 1} dragRef={drag} />
+            {projects.items.map((p, i) => (
+              <ProjectCard key={`${p.name}-${i}`} p={p} n={i + 1} dragRef={drag} labels={projects} />
             ))}
-            <ComingSoonCard />
+            <ComingSoonCard labels={projects} />
           </div>
         </div>
 
@@ -131,7 +132,7 @@ export default function Projects() {
             <div className="relative inline-flex items-center gap-3 ink-border rounded-full px-7 py-3 font-display text-xl md:text-2xl tracking-wide wobble"
               style={{ background: '#0e0524', color: '#ffd21e' }}>
               <span className="text-tt-purple">✦</span>
-              MORE COMING SOON!
+              {projects.moreBanner}
               <span className="text-tt-yellow flicker">⚡</span>
             </div>
           </div>
@@ -143,7 +144,7 @@ export default function Projects() {
 }
 
 /* ---- single project case-file card ---- */
-function ProjectCard({ p, n, dragRef }) {
+function ProjectCard({ p, n, dragRef, labels }) {
   // Ignore the click that ends a drag so a swipe never fires the link.
   const guardClick = (e) => {
     if (dragRef.current?.moved) e.preventDefault()
@@ -212,7 +213,7 @@ function ProjectCard({ p, n, dragRef }) {
               className="mr-auto font-display text-xs tracking-widest uppercase px-3 py-1.5 rounded-full"
               style={{ color: p.accent, background: 'rgba(255,255,255,0.06)', border: '2px solid rgba(255,255,255,0.12)' }}
             >
-              Case file · Private
+              {labels.privateLabel}
             </span>
           )}
           {hasLive && (
@@ -228,7 +229,7 @@ function ProjectCard({ p, n, dragRef }) {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M7 17 17 7M9 7h8v8" />
               </svg>
-              Live
+              {labels.liveLabel}
             </a>
           )}
           {hasRepo && (
@@ -244,7 +245,7 @@ function ProjectCard({ p, n, dragRef }) {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.49-1.11-1.49-.91-.64.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.27 2.75 1.05a9.36 9.36 0 0 1 2.5-.35c.85 0 1.71.12 2.5.35 1.91-1.32 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z" />
               </svg>
-              Code
+              {labels.codeLabel}
             </a>
           )}
         </div>
@@ -254,16 +255,16 @@ function ProjectCard({ p, n, dragRef }) {
 }
 
 /* ---- closing "more coming soon" card ---- */
-function ComingSoonCard() {
+function ComingSoonCard({ labels }) {
   return (
     <div data-card
       className="relative snap-start shrink-0 w-[82vw] sm:w-[360px] rounded-3xl overflow-hidden flex flex-col items-center justify-center text-center p-8"
       style={{ border: '4px dashed rgba(255,255,255,0.35)' }}>
       <div className="absolute inset-0 halftone-light opacity-20" />
       <div className="text-6xl mb-4 floaty">🚧</div>
-      <div className="font-display text-4xl text-white leading-none">MORE<br />COMING<br />SOON!</div>
-      <p className="mt-4 text-white/70">New case files are in the lab.</p>
-      <div className="mt-5 font-display text-2xl text-tt-yellow pop-blink">⚡ STAY TUNED ⚡</div>
+      <div className="font-display text-4xl text-white leading-none"><Lines text={labels.comingSoonTitle} /></div>
+      <p className="mt-4 text-white/70">{labels.comingSoonText}</p>
+      <div className="mt-5 font-display text-2xl text-tt-yellow pop-blink">{labels.comingSoonTag}</div>
     </div>
   )
 }

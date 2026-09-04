@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion'
-import { NAV } from '../data/content'
+import { useContent } from '../data/contentStore'
 
 export default function Nav({ lenis }) {
+  const { nav } = useContent()
+  const NAV = nav.links
   const { scrollYProgress } = useScroll()
   const width = useSpring(scrollYProgress, { stiffness: 120, damping: 24 })
   const [active, setActive] = useState('hero')
@@ -75,7 +77,7 @@ export default function Nav({ lenis }) {
           whileTap={{ scale: 0.96 }}
         >
           <span className="font-display text-tt-yellow tracking-[0.18em] comic-shadow text-sm md:text-base">
-            MENU
+            {nav.menuButton}
           </span>
           <motion.span
             className="text-tt-yellow text-lg leading-none"
@@ -115,7 +117,7 @@ export default function Nav({ lenis }) {
                 style={{ transformOrigin: 'top center', background: 'linear-gradient(180deg,#0b0b12,#12122b)' }}
               >
                 <div className="flex items-center justify-between px-1 pb-3">
-                  <span className="font-display text-tt-yellow text-2xl comic-shadow">SELECT A MISSION</span>
+                  <span className="font-display text-tt-yellow text-2xl comic-shadow">{nav.menuTitle}</span>
                   <button
                     onClick={() => setOpen(false)}
                     aria-label="Close menu"
@@ -148,7 +150,7 @@ export default function Nav({ lenis }) {
                   onClick={() => go('hire')}
                   className="btn-comic w-full bg-tt-pink text-white rounded-xl px-5 py-3 text-lg mt-4"
                 >
-                  HIRE ME
+                  {nav.hireCta}
                 </button>
               </motion.div>
             </div>

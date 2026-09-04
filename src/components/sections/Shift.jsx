@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { SpeechBubble, PanelTag } from '../ui'
-import { SKILL_CREW, FORMS } from '../../data/content'
+import { useContent } from '../../data/contentStore'
 
 // How many skill tiles fit in the fixed-size block before the rest become
 // swipeable. 6 = a tidy 3×2 grid on desktop; bump/lower to taste.
@@ -17,25 +17,22 @@ const PAGE_SIZE = 6
  * one-file edit.
  */
 
-const JOKES = [
-  'Check out everything I can do!',
-  'These are my superpowers… kind of.',
-  'Pick a beast, see the powers.',
-  'POOF! Consider it built.',
-]
-
 const CREW_IMG = (id) => `/characters-processed/crew/${id}.png`
 
 export default function Shift() {
+  const { skills } = useContent()
+  const SKILL_CREW = skills.crew
+  const JOKES = skills.jokes
   const [active, setActive] = useState(0)
   const [joke, setJoke] = useState(0)
 
   useEffect(() => {
+    if (!JOKES.length) return
     const j = setInterval(() => setJoke((v) => (v + 1) % JOKES.length), 3200)
     return () => clearInterval(j)
-  }, [])
+  }, [JOKES.length])
 
-  const crew = SKILL_CREW[active]
+  const crew = SKILL_CREW[Math.min(active, SKILL_CREW.length - 1)]
 
   return (
     <section
@@ -54,14 +51,14 @@ export default function Shift() {
         {/* ---------------- Header band ---------------- */}
         <div className="mb-4 md:mb-5 flex items-end justify-between gap-6">
           <div>
-            <PanelTag color="#4fd84f">BEAST BOY'S TALENT: NEXT LEVEL</PanelTag>
+            <PanelTag color="#4fd84f">{skills.tag}</PanelTag>
             {/* pb on the heading contains the hard drop-shadow so it can't bleed
                 onto the subheading below (which was overlapping it). */}
             <h2 className="mt-3 mega text-white leading-[0.9] pb-2" style={{ fontSize: 'clamp(2.4rem,6vw,4.6rem)' }}>
-              MY SKILLS
+              {skills.heading}
             </h2>
             <p className="mt-2 text-tt-green font-display" style={{ fontSize: 'clamp(1rem,1.6vw,1.35rem)' }}>
-              These are my superpowers <span className="text-white/70">(kind of).</span>
+              {skills.subtitleA} <span className="text-white/70">{skills.subtitleB}</span>
             </p>
           </div>
 
@@ -76,7 +73,7 @@ export default function Shift() {
                 transition={{ type: 'spring', stiffness: 240, damping: 14 }}
               >
                 <SpeechBubble tail="right" color="#4fd84f" editId="shift__bubble" label="Beast Boy bubble">
-                  <span className="text-sm">{JOKES[joke]}</span>
+                  <span className="text-sm">{JOKES[joke % (JOKES.length || 1)]}</span>
                 </SpeechBubble>
               </motion.div>
             </AnimatePresence>
@@ -102,8 +99,8 @@ export default function Shift() {
               {/* ===== Crew selector ===== */}
               <div className="min-w-0">
                 <div className="mb-3">
-                  <div className="font-display text-white text-lg md:text-xl">MEET THE CREW <span className="align-middle">🐾</span></div>
-                  <p className="text-white/70 font-body text-xs mt-0.5 italic">(aka the tech that backs my skills)</p>
+                  <div className="font-display text-white text-lg md:text-xl">{skills.crewTitle} <span className="align-middle">🐾</span></div>
+                  <p className="text-white/70 font-body text-xs mt-0.5 italic">{skills.crewHint}</p>
                 </div>
 
                 {/* Horizontal scroll on mobile; stacks on desktop at natural
@@ -141,7 +138,7 @@ export default function Shift() {
                     className="ml-auto shrink-0 font-display text-xs tracking-widest uppercase"
                     style={{ color: crew.color }}
                   >
-                    Active
+                    {skills.activeLabel}
                   </span>
                 </div>
 
@@ -149,7 +146,7 @@ export default function Shift() {
                     (up to PAGE_SIZE); anything beyond that is swipeable, so the
                     block stays exactly the same height whether a character has 5
                     skills or 7. */}
-                <SkillsDeck crew={crew} />
+                <SkillsDeck crew={crew} swipeHint={skills.swipeHint} />
               </div>
             </div>
           </div>
@@ -158,7 +155,7 @@ export default function Shift() {
         {/* shape-shift roles — a full-width endless news-ticker strip tucked
             directly under the crew + skills frame */}
         <div className="mt-3">
-          <FormsMarquee />
+          <FormsMarquee forms={skills.forms} />
         </div>
       </div>
       </div>
@@ -287,7 +284,7 @@ function chunk(arr, size) {
   return out
 }
 
-function SkillsDeck({ crew }) {
+function SkillsDeck({ crew, swipeHint }) {
   const trackRef = useRef(null)
   const [page, setPage] = useState(0)
   const pages = chunk(crew.skills, PAGE_SIZE)
@@ -362,7 +359,7 @@ function SkillsDeck({ crew }) {
         <div className="mt-3 h-9 flex items-center justify-between gap-3">
           <>
             <span className="font-display text-white/75 text-xs tracking-wide">
-              ← SWIPE FOR MORE POWERS →
+              {swipeHint}
             </span>
             <div className="flex items-center gap-3">
               {/* dots */}
@@ -420,9 +417,9 @@ function DeckArrow({ dir, onClick, disabled, color }) {
 }
 
 /* ---------- Endless role-ticker strip ---------- */
-function FormsMarquee() {
+function FormsMarquee({ forms }) {
   // Two copies of the list back-to-back so the -50% slide loops seamlessly.
-  const loop = [...FORMS, ...FORMS]
+  const loop = [...forms, ...forms]
   return (
     <div
       className="marquee marquee-mask rounded-2xl ink-border py-3"
@@ -432,7 +429,7 @@ function FormsMarquee() {
         {loop.map((f, i) => (
           <span
             key={`${f.label}-${i}`}
-            aria-hidden={i >= FORMS.length}
+            aria-hidden={i >= forms.length}
             className="shrink-0 font-display text-xs sm:text-sm px-3 py-1.5 rounded-full ink-border whitespace-nowrap"
             style={{ background: '#0e2417', color: '#cfe' }}
           >

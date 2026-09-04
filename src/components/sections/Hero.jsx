@@ -1,9 +1,22 @@
-import { motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import Character from '../Character'
-import { SpeechBubble, StarBurst } from '../ui'
+import { SpeechBubble, StarBurst, Lines } from '../ui'
 import Particles from '../Particles'
+import { useContent } from '../../data/contentStore'
 
 export default function Hero({ lenis }) {
+  const { hero, profile } = useContent()
+  const titles = profile.titles && profile.titles.length ? profile.titles : [profile.role].filter(Boolean)
+
+  // Rotate through the titles so you don't have to commit to a single label.
+  const [ti, setTi] = useState(0)
+  useEffect(() => {
+    if (titles.length < 2) return
+    const t = setInterval(() => setTi((v) => (v + 1) % titles.length), 2600)
+    return () => clearInterval(t)
+  }, [titles.length])
+
   const go = (id) => {
     const el = document.getElementById(id)
     if (lenis) lenis.scrollTo(el, { offset: -80, duration: 1.6 })
@@ -61,10 +74,10 @@ export default function Hero({ lenis }) {
           >
             <span className="inline-block ink-border rounded-full bg-tt-pink text-white font-display px-3 py-0.5 -rotate-2"
               style={{ fontSize: 'clamp(0.85rem,1.4vw,1.1rem)' }}>
-              🐦 ROBIN
+              {hero.eyebrowBadge}
             </span>
             <span className="font-display text-tt-yellow comic-shadow" style={{ fontSize: 'clamp(1.1rem,2.2vw,2rem)' }}>
-              HEY, TITANS — THIS IS
+              {hero.eyebrowText}
             </span>
           </motion.div>
 
@@ -77,20 +90,30 @@ export default function Hero({ lenis }) {
             className="mega hero-name text-white mt-1"
             style={{ fontSize: 'clamp(2.4rem,10.5vw,7rem)' }}
           >
-            AMAN<br />ULLAH<br />KAZI
+            <Lines text={hero.name} />
           </motion.h1>
 
           <motion.div
             data-editable-id="hero__role"
-            data-editable-label="Role badge — Full Stack Developer"
+            data-editable-label="Rotating title badge"
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.75, type: 'spring', stiffness: 120 }}
-            className="mt-4 inline-block ink-border-lg rounded-2xl px-5 py-2.5 bg-tt-yellow -rotate-1"
+            className="mt-4 inline-block ink-border-lg rounded-2xl px-5 py-2.5 bg-tt-yellow -rotate-1 overflow-hidden"
           >
-            <span className="font-display text-tt-ink tracking-wide" style={{ fontSize: 'clamp(1.3rem,3vw,2.4rem)' }}>
-              FULL STACK DEVELOPER
-            </span>
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={titles[ti % titles.length]}
+                initial={{ y: '110%', opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: '-110%', opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+                className="block font-display text-tt-ink tracking-wide uppercase"
+                style={{ fontSize: 'clamp(1.3rem,3vw,2.4rem)' }}
+              >
+                {titles[ti % titles.length]}
+              </motion.span>
+            </AnimatePresence>
           </motion.div>
 
           <motion.p
@@ -102,8 +125,8 @@ export default function Hero({ lenis }) {
             className="mt-5 text-white/90 max-w-xl"
             style={{ fontSize: 'clamp(1.05rem,1.5vw,1.4rem)', lineHeight: 1.5 }}
           >
-            <span className="text-tt-green font-display">“This guy adapts.”</span>{' '}
-            I build awesome stuff that solves real-world problems — from schema design to shipped product.
+            <span className="text-tt-green font-display">“{hero.introLead}”</span>{' '}
+            {hero.introBody}
           </motion.p>
 
           <motion.div
@@ -117,12 +140,12 @@ export default function Hero({ lenis }) {
             <button onClick={() => go('projects')}
               className="btn-comic bg-tt-yellow text-tt-ink rounded-xl px-7 py-4"
               style={{ fontSize: 'clamp(1.05rem,1.4vw,1.4rem)' }}>
-              EXPLORE MY WORK
+              {hero.ctaPrimary}
             </button>
             <button onClick={() => go('hire')}
               className="btn-comic bg-tt-pink text-white rounded-xl px-7 py-4"
               style={{ fontSize: 'clamp(1.05rem,1.4vw,1.4rem)' }}>
-              HIRE ME
+              {hero.ctaSecondary}
             </button>
           </motion.div>
         </div>
@@ -166,7 +189,19 @@ export default function Hero({ lenis }) {
               className="absolute -left-24 top-[16%] z-30 hidden lg:block"
             >
               <SpeechBubble tail="right" color="#fff" editId="hero__bubble" label="Robin intro bubble">
-                <span className="text-sm md:text-base">Titans… meet our<br />newest member.<br /><b>This guy adapts.</b></span>
+                <span className="text-sm md:text-base"><Lines text={hero.bubble} /></span>
+              </SpeechBubble>
+            </motion.div>
+
+            {/* second speech bubble — Robin specifically on Aman's adaptability */}
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 200, damping: 12, delay: 2.35 }}
+              className="absolute -right-14 bottom-[22%] z-30 hidden lg:block"
+            >
+              <SpeechBubble tail="left" color="#4fd84f" editId="hero__bubble2" label="Robin adapts bubble">
+                <span className="text-sm md:text-base"><Lines text={hero.bubble2} /></span>
               </SpeechBubble>
             </motion.div>
           </div>

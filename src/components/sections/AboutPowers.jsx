@@ -1,9 +1,9 @@
 import { useRef, useState } from 'react'
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import Character from '../Character'
-import { Reveal, SpeechBubble, PanelTag } from '../ui'
+import { Reveal, SpeechBubble, PanelTag, Lines } from '../ui'
 import Particles from '../Particles'
-import { ABOUT, PROFILE } from '../../data/content'
+import { useContent } from '../../data/contentStore'
 
 /*
  * "About me" and "My superpowers" merged into a single opening section, so the
@@ -18,6 +18,7 @@ const noteColors = ['#ffd21e', '#4fd84f', '#ff8fce', '#7ec8ff', '#c9a7ff']
 const rot = [-3, 2, -1.5, 3, -2]
 
 export default function AboutPowers() {
+  const { about, profile } = useContent()
   const sectionRef = useRef(null)
   // Which sticky on THE BOARD is being hovered — drives the pop-out + blur.
   const [hoveredNote, setHoveredNote] = useState(null)
@@ -68,23 +69,23 @@ export default function AboutPowers() {
         <div>
           {/* ===== ABOUT ===== */}
           <div className="mb-6">
-            <PanelTag color="#ff3ea5">CLASSIFIED — MISSION BRIEFING</PanelTag>
+            <PanelTag color="#ff3ea5">{about.tag}</PanelTag>
             <h2 className="mt-4 mega text-white" style={{ fontSize: 'clamp(3rem,8vw,6.5rem)' }}>
-              ABOUT ME
+              {about.heading}
             </h2>
           </div>
 
           <div className="grid md:grid-cols-[0.88fr_1.12fr] gap-6 items-start">
             <Reveal>
               <div className="ink-border-lg rounded-3xl p-7 bg-[#2a0810] halftone">
-                <div className="font-display text-tt-yellow text-2xl mb-2">// DOSSIER</div>
-                <p className="text-white/90 text-lg leading-relaxed">{ABOUT.intro}</p>
+                <div className="font-display text-tt-yellow text-2xl mb-2">{about.dossierLabel}</div>
+                <p className="text-white/90 text-lg leading-relaxed">{about.intro}</p>
 
                 <div className="mt-6 grid grid-cols-2 gap-3">
-                  <Fact k="Name" v={PROFILE.name} />
-                  <Fact k="Class" v="Full Stack Dev" />
-                  <Fact k="Base" v={PROFILE.location} />
-                  <Fact k="Fuel" v="Coffee ☕ + Cartoons" />
+                  <Fact k="Name" v={profile.name} />
+                  <Fact k="Class" v={about.factClass} />
+                  <Fact k="Base" v={profile.location} />
+                  <Fact k="Fuel" v={about.factFuel} />
                 </div>
 
                 <motion.div
@@ -94,7 +95,7 @@ export default function AboutPowers() {
                   transition={{ type: 'spring', stiffness: 200, damping: 10, delay: 0.2 }}
                   className="mt-6 inline-block font-impact text-tt-green text-stroke-thin text-xl -rotate-2"
                 >
-                  ✓ ACHIEVEMENT UNLOCKED: Reliable Teammate
+                  {about.achievement}
                 </motion.div>
               </div>
             </Reveal>
@@ -110,11 +111,11 @@ export default function AboutPowers() {
                 backgroundSize: '10px 10px',
                 zIndex: hoveredNote !== null ? 30 : undefined,
               }}>
-              <div className="font-display text-white/80 text-xl mb-4">THE BOARD
-                <span className="text-white/40 text-sm font-body ml-2">(hover a note)</span>
+              <div className="font-display text-white/80 text-xl mb-4">{about.boardTitle}
+                <span className="text-white/40 text-sm font-body ml-2">{about.boardHint}</span>
               </div>
               <div className="flex flex-wrap gap-3">
-                {ABOUT.stickies.map((s, i) => {
+                {about.stickies.map((s, i) => {
                   const active = hoveredNote === i
                   // Pop-out is driven by state + a CSS transform (not framer's
                   // whileHover, which proved flaky nested inside Reveal) so it
@@ -177,7 +178,7 @@ export default function AboutPowers() {
 
               <div className="absolute top-[4%] left-0 z-30">
                 <SpeechBubble tail="left" color="#fff" editId="about__bubble" label="Robin About bubble">
-                  <span className="text-sm">Okay. Time for<br />some <b>serious</b> stuff.</span>
+                  <span className="text-sm"><Lines text={about.bubble} /></span>
                 </SpeechBubble>
               </div>
             </div>

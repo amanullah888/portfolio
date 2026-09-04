@@ -1,5 +1,16 @@
 import { motion, useInView } from 'framer-motion'
-import { useRef } from 'react'
+import { Fragment, useRef } from 'react'
+
+/* Render a string with "\n" turned into <br/> line breaks. */
+export function Lines({ text }) {
+  const parts = String(text ?? '').split('\n')
+  return parts.map((line, i) => (
+    <Fragment key={i}>
+      {line}
+      {i < parts.length - 1 && <br />}
+    </Fragment>
+  ))
+}
 
 /* Scroll-reveal wrapper with a springy cartoon entrance */
 export function Reveal({ children, delay = 0, y = 40, className = '', once = true }) {
